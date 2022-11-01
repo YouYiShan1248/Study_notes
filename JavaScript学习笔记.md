@@ -332,3 +332,1648 @@ var age = 18;
 
 对象属于一种复合的数据类型，在对象中可以保存多个不同数据类型的属性。
 
+#### 对象的分类
+
+**内建对象**
+
+由ES标准中定义的对象，在任何的ES的实现中都可以使用
+
+常见内建对象有以下，都可以直接通过new调用构造函数创建对象实例：
+
+- Object、Function、Array、String、Number、Boolean、Date、RegExp
+
+- Error（EvalError、RangeError、ReferenceError、SyntaxError、TypeError、URIError）
+
+```JavaScript
+// Math
+Math.sqrt(2);
+// String
+String(2);
+// Number
+Number("2");
+```
+
+**宿主对象**
+
+由JS的运行环境提供的对象，目前来讲主要指由浏览器提供的对象
+
+比如 `BOM DOM`
+
+```JavaScript
+// console
+console.log("hello");
+// document
+document.write("hello");
+```
+
+JavaScript实现包括三部分：
+
+| 组成                                       | 作用                                                   | 地位                  | 例子       |
+| ------------------------------------------ | ------------------------------------------------------ | --------------------- | ---------- |
+| ES（ECMAScript）                           | 描述JS语法和基本对象                                   | 核心                  |            |
+| DOM（Document Object Model 文档对象模型）  | HTML和XML的应用程序接口，处理网页内容的方法和接口      | W3C标准               | `document` |
+| BOM（Browser Object Model 浏览器对象模型） | 描述与浏览器进行交互的方法和接口，处理浏览器窗口和框架 | 浏览器厂商对DOM的实现 | `window`   |
+
+**DOM**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F14%2FjpVOLT42KarizhP.png&sign=a5436a6f522a27b4d14eb0748aed6e5467a88156020dcdec736314cdc9087cdd)
+
+**BOM**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F14%2Fp7AXdHUntDFq4PB.png&sign=5a2303d02abd4d933916cdfabf6703b84bfe9eb7febc727a01c46d7dce7f482f)
+
+**DOM和BOM的关系**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F14%2F5zjFWRyJe9ZuDq1.jpg&sign=e17d12504bf0451a8db2725c764ac0e1e70e7933f3ffd38f9331d14a4e6d0107)
+
+**自定义对象**
+
+由开发人员自己创建的对象
+
+使用`new`关键字调用的函数，是构造函数`constructor`，构造函数是专门用来创建对象的
+
+函数使用`typeof`检查一个对象时，会返回`object`
+
+在对象中保存值称为属性
+
+- 添加或修改对象属性的语法：`对象.属性名=属性值;`
+
+- 读取对象属性的语法：`对象.属性名`
+
+- 删除对象属性的语法：`delete 对象.属性名;`
+
+```JavaScript
+var obj = new Object();
+// 向obj中添加一个name属性
+obj.name = "孙悟空";
+// 向obj中添加一个gender属性
+obj.gender = "男";
+// 向obj中添加一个age属性
+obj.age = "18";
+// 打印obj
+console.log(typeof obj); // object
+console.log(obj); // {"age":"18","gender":"男","name":"孙悟空"}
+console.log(obj.name); // 孙悟空
+```
+
+如果要使用特殊的属性名，不能采用`.`的方式来操作，而需要使用另一种语法：`对象["属性名"]=属性值`，读取时也需要采用这种方式
+
+```JavaScript
+obj["name"] = "齐天大圣";
+console.log(obj["name"]); // 齐天大圣
+```
+
+使用`[]`这种形式去操作属性，更加的灵活，在`[]`中可以直接传递一个变量，这样变量值是哪个就会读取哪个属性
+
+```JavaScript
+var n = "nihao";
+obj[n] = "你好";
+console.log(obj[n]); // 你好
+```
+
+JS对象的属性值，可以是任意的数据类型，包括对象
+
+```JavaScript
+var obj2 = new Object();
+obj2.name = "猪八戒";
+obj.bro = obj2;
+console.log(obj.bro.name); // 猪八戒
+```
+
+`in`**运算符**
+
+通过该运算符可以检查一个对象中是否含有指定的属性
+
+如果有则返回`true`，没有则返回`false`
+
+语法：`"属性名" in 对象`
+
+```javascript
+console.log("test" in obj); // false
+console.log("name" in obj); // true
+```
+
+#### 基本数据类型和引用数据类型
+
+**基本数据类型**
+
+- JS中的变量都是保存到栈内存中的，基本数据类型的值直接在栈内存中存储
+
+- 值与值之间是独立存在，修改一个变量不会影响其他的变量
+
+```javascript
+var a = 1;
+var b = a;
+console.log("a=" + a + ", b=" + b); // a=1, b=1
+b = 2;
+console.log("a=" + a + ", b=" + b); // a=1, b=2
+```
+
+**引用数据类型**
+
+- 对象是保存到堆内存中的
+
+- 每创建一个新的对象，就会在堆内存中开辟出一个新的空间，而变量保存的是对象的内存地址（对象的引用）
+
+- 如果两个变量保存的是同一个对象引用，当一个通过一个变量修改属性时，另一个也会受到影响
+
+```javascript
+var obj3 = obj;
+obj3.name = "斗战胜佛";
+console.log(obj.name);  // 斗战胜佛
+console.log(obj3.name); // 斗战胜佛
+```
+
+#### 对象字面量
+
+使用对象字面量，可以在创建对象时，直接指定对象属性的语法：`{属性名: 属性值, 属性名: 属性值...}`
+
+对象字面量的属性名可以加引号也可以不加（建议不加），如果要使用一些特殊的名字，则必须加引号
+
+属性名和属性值是一组一组的名值对结构，名和值之间使用`:`连接，多个名值对之间使用`,`隔开
+
+如果一个属性之后没有其他的属性了，就不要写`,`了
+
+```javascript
+var obj = {
+    name: "孙悟空",
+    age: 1000,
+    gender: "男",
+    bor:{
+        name: "猪八戒"
+    }
+}
+console.log(obj); // {"age":1000,"bor":{"name":"猪八戒"},"gender":"男","name":"孙悟空"}
+```
+
+#### 方法
+
+对象的属性值可以是任何的数据类型，也可以是个函数
+
+函数也可以成为对象的属性，如果一个函数作为一个对象的属性保存，那么我们称这个函数是这个对象的方法
+
+```JavaScript
+var obj2 = {
+    name: "猪八戒",
+    age: 18,
+    sayName: function() {
+        console.log(obj2.name);
+    }
+};
+obj2.sayName(); // 猪八戒
+
+//	调方法
+obj.sayName();
+//	调函数
+fun();
+```
+
+#### 枚举对象中的属性
+
+使用`for...in`语句语法：
+
+```javascript
+for(var 变量 in 对象) {
+	语句...
+}
+    
+    
+var obj = {
+    name: "孙悟空",
+    age: 1000,
+    gender: "男",
+    address: "花果山"
+};
+for(var key in obj){
+    console.log(key + "=" + obj.key);
+    // name=undefined
+    // age=undefined
+    // gender=undefined
+    // address=undefined
+    console.log(key + "=" + obj[key]);
+    // name=孙悟空
+    // age=1000
+    // gender=男
+    // address=花果山
+}
+```
+
+
+
+### 3.函数
+
+函数也是一个对象，可以封装一些功能（代码），在需要时可以执行这些功能（代码），可以保存一些代码在需要的时候调用
+
+使用`typeof`检查一个函数对象时，会返回`function`
+
+```javascript
+// 创建一个函数对象
+// 可以将要封装的代码以字符串的形式传递给构造函数
+var fun = new Function("console.log('Hello World.');");
+// 封装到函数中的代码不会立即执行
+// 函数中的代码会在函数调用的时候执行
+// 调用函数语法：函数对象（）
+// 当调用函数时，函数中封装的代码会按照顺序执行
+fun(); // Hello World.
+```
+
+#### 函数的创建
+
+**使用函数声明来创建一个函数**
+
+```javascript
+function 函数名([形参1, 形参2...形参N]) {
+	语句...
+}
+// 调用函数
+函数名();
+
+function fun1(){
+    console.log("Hello world.");
+    alert("Hello World!");
+    document.write("Helloworld");
+}
+fun1();
+
+```
+
+**使用函数表达式（匿名函数）来创建一个函数**
+
+```JavaScript
+var 函数名 = function([形参1, 形参2...形参N]) {
+	语句...
+};
+// 调用函数
+函数名();
+
+var fun1 = function(){
+    console.log("Hello world.");
+    alert("Hello World!");
+    document.write("Helloworld");
+};
+fun1();
+```
+
+#### 函数的参数
+
+定义一个用来求两个数和的函数
+
+​	可以在函数的`()`中来指定一个或多个形参（形式参数）多个形参之间使用`,`隔开，声明形参就相当于在函数内部声明了对应的变量
+
+在调用函数时，可以在`()`中指定实参（实际参数）
+
+-  调用函数时解析器不会检查**实参的类型**。所以要注意，是否有可能会接收到非法的参数，如果有可能则需要对参数进行类型的检查 
+
+-  调用函数时，解析器也不会检查**实参的数量**，多余实参不会被赋值。如果实参的数量少于形参的数量，则没有对应实参的形参将是`undefined` 
+
+```javascript
+// 创建一个函数，用来计算三个数的和
+function sum(a, b, c) {
+    alert(a + b + c);
+    return a + b + c;
+}
+sum(1, 2, 3, 4); // 6
+
+// 调用函数
+// 变量result的值就是函数的执行结果
+// 函数返回什么result的值就是什么
+var result = sum(1, 2, 3);
+console.log("result = " + result);
+```
+
+####  函数的返回值
+
+可以使用`return`来设置函数的返回值语法：`return 值`
+
+`return`后的值将会作为函数的执行结果返回，可以定义一个变量，来接收该结果
+
+在函数中`return`后的语句都不会执行
+
+如果`return`语句后不跟任何值，就相当于返回一个`undefined`；如果函数中不写`return`，则也会返回`undefined`
+
+`return`后可以跟任意类型的值
+
+实参可以是任意的数据类型，也可以是一个对象。当我们的参数过多时，可以将参数封装到一个对象
+
+```javascript
+function sayHello(o){
+    console.log("我是" + o.name
+                + "，今年我" + o.age 
+                + "岁了，我是一个" + o.gender 
+                + "人，我住在" + o.address);
+}			
+var obj = {
+    name: "孙悟空",
+    age: 1000,
+    gender: "男",
+    address: "花果山"
+};
+sayHello(obj); // 我是孙悟空，今年我1000岁了，我是一个男人，我住在花果山
+```
+
+实参可以是一个对象，也可以是一个函数
+
+```javascript
+function calCirc(radius) {
+    return Math.PI * Math.pow(radius, 2);
+}
+function fun(a){
+    console.log("a = " + a);
+}
+fun(calCirc);  
+// a = function calCirc(radius) {
+//     return Math.PI * Math.pow(radius, 2);
+// }
+fun(calCirc(10)); // a = 314.1592653589793
+```
+
+`calCirc(10)`
+
+- 调用函数
+
+- 相当于使用的函数的返回值
+
+`calCirc`
+
+- 函数对象
+
+- 相当于直接使用函数对象
+
+**break、continue、return对比**
+
+- `break`可以退出当前的循环
+
+- `continue`用于跳过当次循环
+
+- `return`可以结束整个函数
+
+**在函数内部再声明一个函数**
+
+```javascript
+function fun3(){
+    function fun4(){
+        console.log("I'm fun4.");
+    }
+    fun4();
+}
+fun3(); // I'm fun4.
+
+function fun5(){
+    function fun6(){
+        console.log("I'm fun6.");
+    }
+    return fun6;
+}
+var a = fun5(); 
+a(); // I'm fun6.
+fun5()();  // I'm fun6.
+```
+
+#### 立即执行函数
+
+函数定义完，立即被调用，这种函数叫做立即执行函数
+
+立即执行函数往往只会执行一次
+
+```JavaScript
+// 函数对象()
+//	直接声明匿名函数会将大括号内当成代码块，导致无法识别大括号前的内容，所以用小括号将整个匿名函数包裹，表示这个匿名函数是一个整体，对于如何调用匿名函数，就在函数整体后面通过小括号来调用
+(function(){
+    console.log("I'm anoymous function.");
+})(); // I'm anoymous function.
+(function(a, b){
+    console.log(a + b);
+})(2,3); // 5
+```
+
+### 4.作用域
+
+直接编写在script标签中的JS代码，都在全局作用域
+
+全局作用域在页面打开时创建，在页面关闭时销毁
+
+在全局作用域中有一个全局对象`window`，它代表的是一个浏览器的窗口，由浏览器创建，可以直接使用
+
+在全局作用域中：
+
+- 创建的变量都会作为window对象的属性保存
+
+- 创建的函数都会作为window对象的方法保存
+
+```JavaScript
+var a = 3;
+console.log(window.a); //3
+console.log(a); //3
+
+b = 3;
+console.log(b); //3
+```
+
+全局作用域中的变量都是全局变量，在页面的任意的部分都可以访问的到
+
+#### 变量的声明提前
+
+使用`var`关键字声明的变量，会在所有的代码执行之前被声明
+
+但是如果声明变量时不使用`var`关键字，则变量不会被声明提前
+
+```JavaScript
+// 1、变量的声明提前
+console.log("a = " + a); // a = undefined
+var a = "abc";
+// ======相当于======
+var a;
+console.log("a = " + a); // a = undefined
+a = "abc";
+
+// 2、没有变量的声明提前，报错
+console.log("b = " + b); // UncaughtReferenceError: b is not defined
+b = "abc";
+// ======相当于======
+console.log("b = " + b); // UncaughtReferenceError: b is not defined
+window.b = "abc";
+```
+
+#### 函数的声明提前
+
+使用**函数声明**形式创建的函数`function`
+
+```JavaScript
+函数(){
+	语句...
+}
+```
+
+它会在所有的代码执行之前就被创建，所以我们可以在函数声明前来调用函数
+
+```JavaScript
+fun1(); // fun1...
+fun2(); // UncaughtTypeError: fun2 is not a function
+// 函数声明，会被提前创建
+function fun1(){
+    console.log("fun1...");
+}
+// 函数表达式，不会被提前创建（变量会被提前声明，但函数不会被提前创建）
+var fun2 = function(){
+    console.log("fun2...");
+}
+```
+
+#### 函数作用域
+
+调用函数时创建函数作用域，函数执行完毕以后，函数作用域销毁
+
+每调用一次函数就会创建一个新的函数作用域，他们之间是互相独立的
+
+- 在函数作用域中可以访问到全局作用域的变量
+
+- 在全局作用域中无法访问到函数作用域的变量
+
+
+
+当在函数作用域操作一个变量时，它会先在自身作用域中寻找，
+
+- 如果有就直接使用
+
+- 如果没有则向上一级作用域中寻找，直到找到全局作用域
+
+- 如果全局作用域中依然没有找到，则会报错
+
+
+
+在函数中要访问全局变量可以使用`window`对象
+
+```JavaScript
+var a = 10;
+function fun2(){
+    var a = 20;
+
+    function fun3(){
+        var a = 30;
+        console.log("fun3 ==> a = " + a);  // fun3 ==> a = 30
+    }
+
+    fun3();
+
+    console.log("fun2 ==>a = " + a); // fun2 ==>a = 20
+    console.log("a = " + window.a); // a = 10
+}
+fun2(); 
+console.log("a = " + a); // a = 10
+```
+
+在函数作用域也有声明提前的特性，使用`var`关键字声明的变量，会在函数中所有的代码执行之前被声明
+
+
+
+函数声明也会在函数中所有的代码执行之前执行
+
+```JavaScript
+// 在函数作用域也有声明提前的特性，使用`var`关键字声明的变量，会在函数中所有的代码执行之前被声明
+function func1(){
+    console.log(a);
+    var a = "func1";
+
+    // 函数声明也会在函数中所有的代码执行之前执行
+    func2(); // fun2...
+    function func2(){
+        console.log("fun2...");
+    }
+}
+func1(); // undefined
+```
+
+在函数中，不使用`var`声明的变量都会成为全局变量
+
+```JavaScript
+// 函数声明且调用
+func3();
+function func3() {
+    a = 4;
+}
+console.log("a = " + window.a);  // a = 4
+console.log("a = " + window["a"]);   // a = 4
+console.log("a = " + a);    // a = 4
+// 函数声明不调用
+function func4() {
+    b = 4;
+}
+console.log("b = " + window.b);  // b = 4
+console.log("b = " + window["b"]);   // b = 4
+console.log("b = " + b);    // UncaughtReferenceError: b is not defined
+```
+
+定义形参就相当于在函数作用域中声明了变量
+
+```JavaScript
+var e = 10;
+function fun5(e){
+    console.log(e);
+}
+fun5(); // undefined
+fun5(55);  // 55
+```
+
+#### this
+
+解析器在调用函数每次都会向函数内部传递进一个隐含的参数，这个隐含的参数就是`this`
+
+`this`指向的是一个对象，这个对象我们称为函数执行的上下文对象
+
+根据函数的调用方式的不同，`this`会指向不同的对象
+
+- 以函数的形式调用时，`this`永远都是`window`
+
+- 以方法的形式调用时，`this`就是调用方法的那个对象
+
+```JavaScript
+// - 以函数的形式调用时，`this`永远都是`window`
+function fun(){
+    console.log(this.name);
+}
+var name = "ddd"; // ddd
+fun();
+// - 以方法的形式调用时，`this`就是调用方法的那个对象
+var obj = {
+    name: "孙悟空",
+    sayName: fun
+}
+obj.sayName(); // 孙悟空
+```
+
+### 5.构造函数与原型对象
+
+#### 使用工厂方法创建对象
+
+```javascript
+function createPerson(name, age, gender){
+    // 创建一个新的对象
+    var obj=new Object();
+    //向对象中添加属性
+    obj.name = name;
+    obj.age = age;
+    obj.gender = gender;
+    obj.sayName = function(){
+        console.log(this.name);
+    };
+    //将新的对象返回
+    return obj;
+}
+
+var obj1 = createPerson("孙悟空", 1000, "男");
+var obj2 = createPerson("猪八戒", 3600, "男");
+var obj3 = createPerson("沙悟净", 10000, "男");
+
+obj1.sayName(); // 孙悟空
+obj2.sayName(); // 猪八戒
+obj3.sayName(); // 猪八戒
+```
+
+使用工厂方法创建的对象，使用的构造函数都是`Object`
+
+所以创建的对象都是`Object`这个类型，就导致我们无法区分出多种不同类型的对象
+
+#### 构造函数
+
+创建一个构造函数，专门用来创建Person对象的构造函数就是一个普通的函数
+
+创建方式和普通函数没有区别，不同的是构造函数习惯上**首字母大写**构造函数
+
+和普通函数的区别就是**调用方式的不同**
+
+- 普通函数是直接调用
+
+- 构造函数需要使用`new`关键字来调用
+
+```JavaScript
+function Person(){
+    console.log(this); // Person{}
+}
+// 普通函数
+var fun = Person();
+console.log(fun); // undefined
+// 构造函数
+var person = new Person();
+console.log(person); // Person{}
+```
+
+
+
+#### 构造函数的执行流程
+
+1. 立刻创建一个新的对象
+2. 将新建的对象设置为函数中`this`，在构造函数中可以使用`this`来引用新建的对象
+3. 逐行执行函数中的代码
+4. 将新建的对象作为返回值返回
+
+```JavaScript
+function Dog(){
+
+}
+
+function Person(name, age, gender){
+    //向对象中添加属性
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.sayHello = function(){
+        console.log("My'name is " + this.name + ", " +
+                    "I'm " + this.age + " years old, " +
+                    "and I'm a " + this.gender + ".");
+    };
+}
+
+var person1 = new Person("孙悟空", 1000, "man");
+var person2 = new Person("猪八戒", 3600, "man");
+var person3 = new Person("沙悟净", 10000, "man");
+var dog = new Dog();
+person1.sayHello(); // My'name is 孙悟空, I'm 1000 years old, and I'm a man.
+person2.sayHello(); // My'name is 猪八戒, I'm 3600 years old, and I'm a man.
+person3.sayHello(); // My'name is 沙悟净, I'm 10000 years old, and I'm a man.
+console.log(person1); // Person {name: "孙悟空", age: 1000, gender: "man", sayHello: ƒ}
+console.log(person2); // Person {name: "猪八戒", age: 3600, gender: "man", sayHello: ƒ}
+console.log(person3); // Person {name: "沙悟净", age: 10000, gender: "man", sayHello: ƒ}
+console.log(typeof person1); // object
+console.log(typeof person2); // object
+console.log(typeof person3); // object
+```
+
+使用同一个构造函数创建的对象，我们称为一类对象，也将一个构造函数称为一个类。
+
+我们将通过一个构造函数创建的对象，称为是该类的实例
+
+使用`instanceof`可以检查一个对象是否是一个类的实例语法：`对象 instanceof 构造函数`
+
+如果是则返回`true`，否则返回`false`
+
+```JavaScript
+console.log(person1 instanceof Person); //true
+console.log(person2 instanceof Person); //true
+console.log(person3 instanceof Person); //true
+console.log(dog instanceof Person); 	//false
+```
+
+所有的对象都是`Object`的后代，所以任何对象和`Object`进行`instanceof`检查时都会返回`true`
+
+```javascript
+console.log(person1 instanceof Object); //true
+console.log(person2 instanceof Object); //true
+console.log(person3 instanceof Object); //true
+console.log(dog instanceof Object); 	//true
+```
+
+`this`的情况：
+
+- 当以函数的形式调用时，`this`是`window`
+
+- 当以方法的形式调用时，谁调用方法`this`就是谁
+
+- 当以构造函数的形式调用时，`this`就是新创建的那个对象
+
+#### 构造函数修改
+
+创建一个Person构造函数
+
+在Person构造函数中，为每一个对象都添加了一个sayName方法，目前我们的方法是在构造函数内部创建的
+
+也就是构造函数每执行一次就会创建一个新的sayName方法也是所有实例的sayName都是唯一的
+
+```JavaScript
+function Person(name, age, gender){
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.sayHello = function(){
+        console.log("My'name is " + this.name + ", " +
+                    "I'm " + this.age + " years old, " +
+                    "and I'm a " + this.gender + ".");
+    };
+}
+```
+
+这样就导致了构造函数执行一次就会创建一个新的方法，执行10000次就会创建10000个新的方法，而10000个方法都是一模一样的
+
+
+
+这是完全没有必要，完全可以使所有的对象共享同一个方法
+
+```JavaScript
+function Person(name, age, gender){
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.sayHello = fun;
+}
+// 将sayName方法在全局作用域中定义
+function fun(){
+    console.log("My'name is " + this.name + ", " +
+                "I'm " + this.age + " years old, " +
+                "and I'm a " + this.gender + ".");
+};
+```
+
+将函数定义在全局作用域，虽然节省了空间，但却污染了全局作用域的命名空间
+
+而且定义在全局作用域中也很不安全
+
+#### 原型对象
+
+**原型prototype**
+
+我们所创建的每一个函数（不论是普通函数还是构造函数），解析器都会向函数中添加一个属性`prototype`
+
+```JavaScript
+function Person(){
+
+}
+
+function MyClass(){
+
+}
+
+console.log(Person.prototype);
+// {constructor: ƒ}
+// 		constructor: ƒ Person()
+// 			arguments: null
+// 			caller: null
+// 			length: 0
+// 			name: "Person"
+// 			prototype: {constructor: ƒ}
+// 			__proto__: ƒ ()
+// 			[[FunctionLocation]]: 09-原型对象.html:8
+// 			[[Scopes]]: Scopes[1]
+// 		__proto__: Object
+console.log(Person.prototype == MyClass.prototype); // false
+```
+
+当函数以普通函数的形式调用`prototype`时，没有任何作用
+
+
+
+当函数以构造函数的形式调用`prototype`时，它所创建的对象中都会有一个隐含的属性，指向该构造函数的原型对象，我们可以通过`__proto__`来访问该属性
+
+```javascript
+var mc1 = new MyClass();
+var mc2 = new MyClass();
+var mc3 = new MyClass();
+console.log(mc1.__proto__ == MyClass.prototype); // true
+console.log(mc2.__proto__ == MyClass.prototype); // true
+console.log(mc3.__proto__ == MyClass.prototype); // true
+```
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F27%2FcOdFuN8bgXEPLTa.png&sign=b37b764b86d5f7e4d974c25c5e06cb1c71a4e8a0ab42b6f50d905d5defced0a5)
+
+原型对象就相当于一个**公共区域**，所有同一个类的实例都可以访问到这个原型对象
+
+
+
+我们可以将对象中共有的内容，统一设置到原型对象中
+
+```JavaScript
+// 向MyClass中添加属性a
+MyClass.prototype.a = "123";
+console.log(mc1.a);  // 123
+// 向MyClass中添加方法sayHello
+MyClass.prototype.sayHello = function(){
+alert("hello");
+}
+mc3.sayHello();
+```
+
+当我们访问对象的一个属性或方法时，它会先在对象自身中寻找，如果有则直接使用，如果没有则会去原型对象中寻找，如果找到则直接使用
+
+```JavaScript
+mc2.a = "456";
+console.log(mc2.a);  // 456
+```
+
+以后我们创建构造函数时，可以将这些对象共有的属性和方法，统一添加到构造函数的原型对象中
+
+这样不用分别为每一个对象添加，也不会影响到全局作用域，就可以使每个对象都具有这些属性和方法了
+
+**hasOwnProperty**
+
+```JavaScript
+function MyClass(){
+
+}
+MyClass.prototype.name = "I'm prototype's name.";
+var mc = new MyClass();
+mc.age = 18;
+// 使用in检查对象中是否含有某个属性时，如果对象中没有但是原型中有，也会返回true
+console.log("name" in mc); // true
+console.log("age" in mc); // true
+// 可以使用对象的hasOwnProperty()来检查对象自身中是否含有该属性
+// 使用该方法只有当对象自身中含有属性时，才会返回true
+console.log(mc.hasOwnProperty("name")); // false
+console.log(mc.hasOwnProperty("age"));  // true
+console.log(mc.hasOwnProperty("hasOwnProperty"));  // false
+```
+
+**那么，**`**hasOwnProperty**`**是原型对象中定义的方法吗？**
+
+因为对象中没有定义`hasOwnProperty`方法，那应该就是在原型对象中定义的了，果真如此吗？
+
+
+
+我们用`hasOwnProperty`方法看下有没有`hasOwnProperty`它自己
+
+```JavaScript
+console.log(mc.__proto__.hasOwnProperty("hasOwnProperty"));  // false
+```
+
+我们发现，原型对象中也没有`hasOwnProperty`方法，那`hasOwnProperty`究竟是哪里来的呢？
+
+**原型的原型**
+
+原型对象也是对象，所以它也有原型，当我们使用一个对象的属性或方法时
+
+-  会先在自身中寻找，自身中如果有则直接使用 
+
+-  如果没有则去原型对象中寻找，有则使用 
+
+-  如果没有则去原型的原型中寻找，直到找到`Object`对象的原型 
+
+-  `Object`对象的原型没有原型，如果在`Object`中依然没有找到，则返回`undefined`
+
+```JavaScript
+console.log(mc.helloWorld);  // undefined
+```
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F27%2FTrGWR83XvCAVzdY.png&sign=87a768076e19651354822b23a00489da7147374e10fa418f1447ae71e28bd5ba)
+
+`mc.__proto__.__proto__`就是`Object`对象了
+
+`Object`对象虽然没有原型，但也有`__proto__`，只是为`null`而已
+
+#### toString
+
+当我们直接在页面中打印一个对象时，实际上是输出的对象的`toString()`方法的返回值（*这里并非视频中所说的那样，有待确认*）
+
+
+
+如果我们希望在输出对象时不输出`[object Object]`，可以为对象添加一个`toString()`方法
+
+```JavaScript
+function Person(name, age, gender){
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+}
+var per1 = new Person("孙悟空", 1000, "man");
+var per2 = new Person("猪八戒", 3600, "man");
+// 当我们直接在页面中打印一个对象时，实际上是输出的对象的`toString()`方法的返回值
+console.log(per1); // Person {name: "孙悟空", age: 1000, gender: "man"}
+console.log(per1.toString()); // [object Object]
+// 如果我们希望在输出对象时不输出`[object Object]`，可以为对象添加一个`toString()`方法
+per1.toString = function(){
+    return "Person[name=" + this.name + ", age=" + this.age + ", gender=" + this.gender + "]";
+}
+console.log(per1); // Person {name: "孙悟空", age: 1000, gender: "man", toString: ƒ}
+console.log(per1.toString()); // Person[name=孙悟空, age=1000, gender=man]
+```
+
+上述只是修改per1对象的`toString`方法，不会对其他对象产生影响
+
+
+
+如果想要所有对象都执行该方法，可以修改Person原型的`toString`
+
+```JavaScript
+console.log(per2.toString()); // [object Object]
+// 修改Person原型的toString
+Person.prototype.toString = function(){
+    return "Person[name=" + this.name + ", age=" + this.age + ", gender=" + this.gender + "]";
+}
+console.log(per2.toString()); // Person[name=猪八戒, age=3600, gender=man]
+```
+
+**垃圾回收（GC）**
+
+在JS中拥有自动的垃圾回收机制，会自动将这些垃圾对象从内存中销毁，我们不需要也不能进行垃圾回收的操作
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F28%2FhYS8TOybCBMx9Ud.png&sign=9b7a4b3d276d9867be9dc5de8e1ad6570390d979fd5fe6463b26d0384f419e75)
+
+我们需要做的只是要将不再使用的对象设置`null`即可
+
+```javascript
+var obj = new Object();
+// ...
+obj = null
+```
+
+### 6.数组
+
+#### 数组简介
+
+```JavaScript
+// 创建数组对象
+var arr=new Array();
+// 使用typeof检查一个数组时，会返回object
+console.log(typeof arr); // object
+```
+
+**向数组中添加元素**
+
+语法：`数组[索引] = 值`
+
+```JavaScript
+arr[0] = 10;
+arr[1] = 33;
+arr[2] = 22;
+```
+
+**读取数组中的元素**
+
+语法：`数组[索引]`
+
+如果读取不存在的索引，不会报错而是返回`undefined`
+
+```JavaScript
+console.log(arr[2]); // 22
+console.log(arr[3]); // undefined
+```
+
+**获取数组的长度**
+
+可以使用`length`属性来获取数组的长度（元素的个数）语法：`数组.length`
+
+- 对于连续的数组，使用`length`可以获取到数组的长度（元素的个数）
+
+- 对于非连续的数组，使用`length`会获取到数组的最大的索引 + 1
+
+```JavaScript
+console.log(arr.length); // 3
+console.log(arr); // {"0":10,"1":33,"2":22,"length":3}
+arr[10] = 33;
+console.log(arr.length); // 11
+console.log(arr); // {"0":10,"1":33,"10":33,"2":22,"length":11}
+```
+
+**修改数组的长度**
+
+- 如果修改的`length`大于原长度，则多出部分会空出来
+
+- 如果修改的`length`小于原长度，则多出的元素会被删除
+
+```JavaScript
+arr.length = 100;
+console.log(arr.length); // 100
+console.log(arr); // {"0":10,"1":33,"10":33,"2":22,"length":100}
+arr.length = 2;
+console.log(arr.length); // 2
+console.log(arr); // {"0":10,"1":33,"length":2}
+```
+
+**向数组最后一位添加元素**
+
+语法：`数组[数组.length] = 值;`
+
+```JavaScript
+arr[arr.length] = 22;
+console.log(arr.length); // 3
+console.log(arr); // {"0":10,"1":33,"2":22,"length":3}
+arr[arr.length] = 33;
+console.log(arr.length); // 4
+console.log(arr); // {"0":10,"1":33,"2":22,"3":33,"length":4}
+```
+
+#### 创建数组的方式
+
+**字面量创建数组**
+
+语法：`[]`
+
+```JavaScript
+var arr1 = [];
+console.log(arr1); // {"length":0}
+console.log(typeof arr1); // object
+console.log(arr1.length); // 0
+```
+
+使用字面量创建数组时，可以在创建时就指定数组中的元素
+
+```JavaScript
+var arr2 = [1,2,3,4,5,10];
+console.log(arr2);  // {"0":1,"1":2,"2":3,"3":4,"4":5,"5":10,"length":6} 
+console.log(arr2.length); // 6
+```
+
+**使用构造函数创建数组**
+
+使用构造函数创建数组时，也可以同时添加元素，将要添加的元素作为构造函数的参数传递
+
+元素之间使用`,`隔开
+
+```JavaScript
+var arr3 = new Array(1,2,3,4,5);
+console.log(arr3);  // {"0":1,"1":2,"2":3,"3":4,"4":5,"length":5} 
+console.log(arr3.length); // 5
+```
+
+#### 数组元素类型
+
+**任意的数据类型**
+
+数字、字符串、布尔值、`null`、`undefined`
+
+```JavaScript
+var arr6 = [2, "13", true, null, undefined];
+console.log(arr6); 
+// Array(5)
+// 	0: 2
+// 	1: "13"
+// 	2: true
+// 	3: null
+// 	4: undefined
+// 	length: 5
+```
+
+**对象**
+
+```JavaScript
+// **也可以是对象**
+var obj = {name:"孙悟空"};
+var arr7 = [];
+arr7[arr7.length] = obj;
+console.log(arr7); // {"0":{"name":"孙悟空"},"length":1} 
+arr7 = [{name:"孙悟空"}, {name:"沙和尚"}, {name:"猪八戒"}];
+console.log(arr7); // {"0":{"name":"孙悟空"},"1":{"name":"沙和尚"},"2":{"name":"猪八戒"},"length":3}
+```
+
+**函数**
+
+```JavaScript
+arr7 = [function(){alert(1)},function(){alert(2)}]; 
+console.log(arr7); // {"0":"function (){alert(1)}","1":"function (){alert(2)}","length":2}
+```
+
+**数组**
+
+数组中也可以放数组，如下这种数组我们称为**二维数组**
+
+```JavaScript
+arr7 = [[1,2,3],[4,5,6],[7,8,9]];
+console.log(arr7); // {"0":{"0":1,"1":2,"2":3,"length":3},"1":{"0":4,"1":5,"2":6,"length":3},"2":{"0":7,"1":8,"2":9,"length":3},"length":3}
+```
+
+#### 数组的方法
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F28%2FQdKCH1hIcq5AxXZ.png&sign=a137476d00c4dc6f5ac247bb0933a4a7e9d0b42f6ee7432f631ca5f68d0b3cb9)
+
+**push()**
+
+该方法可以向数组的末尾添加一个或多个元素，并返回数组的新的长度
+
+可以将要添加的元素作为方法的参数传递，这样这些元素将会自动添加到数组的末尾
+
+```JavaScript
+var result = arr.push("唐三藏");
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏"]
+arr.push("菩提老祖", "地藏菩萨", "弥勒佛"); 
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨", "弥勒佛"]
+console.log("result = " + result); // result = 4
+```
+
+**pop()**
+
+该方法可以删除数组的最后一个元素，并将被删除的元素作为返回值返回
+
+```JavaScript
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨", "弥勒佛"]
+var result = arr.pop();
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+console.log("result = " + result); // result = 弥勒佛
+```
+
+**unshift()**
+
+向数组开头添加一个或多个元素，并返回新的数组长度
+
+向前边插入元素以后，其他的元素索引会依次调整
+
+```JavaScript
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+result = arr.unshift("牛魔王", "二郎神");
+console.log(arr); // ["牛魔王", "二郎神", "孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+console.log("result = " + result); // result = 8
+```
+
+**shift()**
+
+可以删除数组的第一个元素，并将被删除的元素作为返回值返回
+
+```JavaScript
+console.log(arr); // ["牛魔王", "二郎神", "孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+result = arr.shift();
+console.log(arr); // ["二郎神", "孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+console.log("result = " + result); // result = 7
+```
+
+**slice()**
+
+从某个已有的数组返回选定的元素，可以用来从数组提取指定元素
+
+该方法不会改变元素数组，而是将截取到的元素封装到一个新数组中返回参数：
+
+- 截取开始的位置的索引，包含开始索引
+
+- 截取结束的位置的索引，不包含结束索引
+
+```JavaScript
+result = arr.slice(0,3);
+console.log(result); // ["二郎神", "孙悟空", "猪八戒"]
+```
+
+第二个参数可以省略不写，此时会截取从开始索引往后的所有元素
+
+```javascript
+result = arr.slice(3);
+console.log(result); // ["沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+```
+
+索引可以传递一个负值，如果传递一个负值，则从后往前计算
+
+- -1 倒数第一个
+
+- -2 倒数第二个
+
+```JavaScript
+result = arr.slice(4, -1);
+console.log(result); // ["唐三藏", "菩提老祖"]
+```
+
+**splice()**
+
+删除元素，并向数组添加新元素。可以用于删除数组中的指定元素
+
+使用`splice()`会影响到原数组，会将指定元素从原数组中删除，并将被删除的元素作为返回值返回
+
+参数：
+
+-  第一个，表示开始位置的索引 
+
+-  第二个，表示删除的数量 
+
+```JavaScript
+arr = ["牛魔王", "二郎神", "孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"];
+result = arr.splice(0, 2);
+console.log(result); // ["牛魔王", "二郎神"]
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+
+arr = ["牛魔王", "二郎神", "孙悟空", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"];
+result = arr.splice(1, 2);
+console.log(result); // ["二郎神", "孙悟空"]
+console.log(arr); // ["牛魔王", "猪八戒", "沙悟净", "唐三藏", "菩提老祖", "地藏菩萨"]
+```
+
+-  第三个及以后，可以传递一些新的元素，这些元素将会自动插入到开始位置索引前边 
+
+```JavaScript
+// 替换元素
+arr = ["孙悟空", "猪八戒", "沙悟净", "唐三藏"];
+result = arr.splice(0, 1, "牛魔王", "铁扇公主", "红孩儿");
+console.log(result); // ["孙悟空"]
+console.log(arr); // ["牛魔王", "铁扇公主", "红孩儿", "猪八戒", "沙悟净", "唐三藏"]
+// 插入元素
+arr = ["孙悟空", "猪八戒", "沙悟净", "唐三藏"];
+result = arr.splice(0, 0, "牛魔王", "铁扇公主", "红孩儿");
+console.log(result); // []
+console.log(arr); // ["牛魔王", "铁扇公主", "红孩儿", "孙悟空", "猪八戒", "沙悟净", "唐三藏"]
+```
+
+- `slice`可以提取数组中指定元素
+
+- `splice`可以删除元素、替换元素、插入元素（功能更强大）
+
+
+
+**concat()**
+
+`concat()`可以连接两个或多个数组，并将新的数组返回
+
+该方法不会对原数组产生影响
+
+```JavaScript
+var arr1 = ["孙悟空", "猪八戒", "沙悟净"];
+var arr2 = ["青毛狮子怪", "黄牙老象", "大鹏金翅雕"];
+var arr3 = ["虎力大仙", "鹿力大仙", "羊力大仙"];
+var arr4 = arr1.concat(arr2,arr3,"牛魔王","铁扇公主","红孩儿");
+console.log(arr4); // ["孙悟空", "猪八戒", "沙悟净", "青毛狮子怪", "黄牙老象", "大鹏金翅雕", "虎力大仙", "鹿力大仙", "羊力大仙", "牛魔王", "铁扇公主", "红孩儿"]
+```
+
+
+
+**join()**
+
+该方法可以将数组转换为一个字符串
+
+该方法不会对原数组产生影响，而是将转换后的字符串作为结果返回
+
+在`join()`中可以指定一个字符串作为参数，这个字符串将会成为数组中元素的连接符
+
+如果不指定连接符，则默认使用`,`作为连接符
+
+```JavaScript
+var arr = ["孙悟空", "猪八戒", "沙悟净"];
+var result = arr.join();
+console.log(arr); // ["孙悟空", "猪八戒", "沙悟净"]
+console.log(result); // 孙悟空,猪八戒,沙悟净
+console.log(typeof result); // string
+
+result = arr.join("");
+console.log(result); // 孙悟空猪八戒沙悟净
+
+result = arr.join("@");
+console.log(result); // 孙悟空@猪八戒@沙悟净
+```
+
+**reverse()**
+
+该方法用来反转数组（前边的去后边，后边的去前边）
+
+该方法会直接修改原数组
+
+```JavaScript
+var arr = ["孙悟空", "猪八戒", "沙悟净"];
+arr.reverse();
+console.log(arr); // ["沙悟净", "猪八戒", "孙悟空"]
+```
+
+**sort()**
+
+可以用来对数组中的元素进行排序
+
+也会影响原数组，默认会按照Unicode编码进行排序
+
+```JavaScript
+var arr = ['f', 'b', 'a', 'h', 'e', 'd'];
+arr.sort();
+console.log(arr); // ["a", "b", "d", "e", "f", "h"]
+```
+
+即使对于纯数字的数组，使用`sort()`排序时，也会按照Unicode编码来排序
+
+
+
+所以对数字进行排序时，可能会得到错误的结果
+
+```JavaScript
+arr = ['2', '44', '9', '8', '2', '0'];
+arr.sort();
+console.log(arr); // ["0", "2", "2", "44", "8", "9"]
+```
+
+我们可以自己来指定排序的规则，我们可以在`sort()`添加一个回调函数，来指定排序规则
+
+回调函数中需要定义两个形参，浏览器将会分别使用数组中的元素作为实参去调用回调函数
+
+```JavaScript
+arr =[5,4];
+arr.sort(function(a,b){
+    console.log("a ="+a);//5
+    console.log("b ="+b);//4
+});
+```
+
+使用哪个元素调用不确定，但是肯定的是在数组中a一定在b前边
+
+浏览器会根据回调函数的返回值来决定元素的顺序，
+
+- 如果返回一个大于0的值，则元素会交换位置
+
+- 如果返回一个小于等于0的值，则元素位置不变
+
+```JavaScript
+arr = [2, 44, 9, 8, 2, 0, 6];
+arr.sort(function(a,b){
+    if(a > b){
+        return 1;
+    } else {
+        return -1;
+    }
+});
+console.log(arr); // [0, 2, 2, 6, 8, 9, 44]
+```
+
+- 如果需要升序排列，则返回`a - b`
+
+- 如果需要降序排列，则返回`b - a`
+
+```JavaScript
+arr.sort(function(a,b){
+    // 升序排列
+    return a - b;
+});
+console.log(arr); // [0, 2, 2, 6, 8, 9, 44]
+arr.sort(function(a,b){
+    // 降序排列
+    return b - a;
+});
+console.log(arr); // [44, 9, 8, 6, 2, 2, 0]
+```
+
+
+
+**小结**
+
+- 会对原数组产生影响的方法：`push`、`pop`、`shift`、`unshift`、`splice`、`reverse`、`sort`
+
+- 不会对原数组产生影响的方法：`slice`、`concat`、`join`
+
+- 添加元素的方法：`push`、`unshift`、`splice`
+
+- 删除元素的方法：`pop`、`shift`、`splice`
+
+- 替换元素的方法：`splice`
+
+- 连接元素的方法：`concat`、`join`
+
+- 排序方法：`reverse`、`sort`
+
+#### 数组的遍历
+
+```JavaScript
+var arr = ["孙悟空", "猪八戒", "沙悟净", "白龙马"];
+// 所谓的遍历数组，就是将数组中所有的元素都取出来
+for(var i=0;i<arr.length;i++){
+    console.log(arr[i]);
+}
+```
+
+**forEach方法**
+
+这个方法只支持IE8以上的浏览器，IE8及以下的浏览器均不支持该方法
+
+所以如果需要兼容IE8，则不要使用`forEach`，还是使用`for`循环来遍历
+
+
+
+forEach() 方法需要一个函数作为参数
+
+像这种函数，由我们创建但是不由我们调用的，我们称为**回调函数**
+
+数组中有几个元素，函数就会执行几次，每次执行时，浏览器会将遍历到的元素
+
+以实参的形式传递进来，我们可以来定义形参，来读取这些内容
+
+浏览器会在回调函数中传递三个参数：
+
+- 第一个参数，就是当前正在遍历的元素
+
+- 第二个参数，就是当前正在遍历的元素的索引
+
+- 第三个参数，就是正在遍历的数组
+
+```JavaScript
+arr.forEach(function(value, index, obj){
+    console.log("value = " + value);
+    console.log("index = " + index);
+    console.log("obj = " + obj);
+});
+```
+
+### 7.call、apply和arguments
+
+#### call()和apply()
+
+这两个方法都是函数对象的方法，需要通过函数对象来调用
+
+当对函数调用`call()`和`apply()`都会调用函数执行
+
+```javascript
+var obj = {
+    name: "obj"
+};
+var obj2 = {
+    name:"obj2"
+}
+function fun(){
+    console.log(this.name);
+}
+fun.call(obj); // obj
+fun.call(obj2); // obj2
+```
+
+在调用`call()`和`apply()`可以将一个对象指定为第一个参数此时这个对象将会成为函数执行时的`this`
+
+- `call()`方法可以将实参在对象之后依次传递
+
+- `apply()`方法需要将实参封装到一个数组中统一传递
+
+```javascript
+function fun(a, b){
+    console.log("a = " + a + ", b = " + b);
+}
+fun.call(obj, 2, 3); // a = 2, b = 3
+fun.apply(obj, [2, 3]); // a = 2, b = 3
+```
+
+ 
+
+**this的情况**
+
+1. 以函数的形式调用时，`this`永远都是`window`
+2. 以方法的形式调用时，`this`是调用方法的对象
+3. 以构造函数的形式调用时，`this`是新创建的那个对象
+4. 使用`call`和`apply`调用时，`this`是指定的那个对象
+
+#### arguments
+
+在调用函数时，浏览器每次都会传递进两个隐含的参数：
+
+- 函数的上下文对象`this`
+
+- 封装实参的对象`arguments`
+
+
+
+`arguments`是一个**类数组对象**（并非数组），可以通过索引来操作数据，也可以获取长度
+
+```javascript
+function fun1(){
+    console.log(arguments instanceof Array); // false
+    console.log(Array.isArray(arguments));   // false
+}
+fun1();
+```
+
+在调用函数时，我们所传递的实参都会在`arguments`中保存
+
+我们即使不定义形参，也可以通过`arguments`来使用实参，只不过比较麻烦
+
+- `arguments[0]`表示第一个实参
+
+- `arguments[1]`表示第二个实参
+
+```javascript
+function fun2(a,b,c){
+    console.log("arguments.length = " + arguments.length + ", arguments[0] = " + arguments[0]); 
+}
+fun2("hello"); // arguments.length = 1, arguments[0] = hello
+fun2(true, "hello"); // arguments.length = 2, arguments[0] = true
+```
+
+它里边有一个属性叫做`callee`，这个属性对应一个函数对象，就是当前正在执行的函数对象
+
+```javascript
+function fun3(){
+    console.log(arguments.callee);
+    // function fun3(){
+    //     console.log(arguments.callee);
+    // }
+    console.log(arguments.callee == fun3); // true
+}
+fun3();
+```
+
+### 8.Date和Math
+
+#### Date
+
+在JS中使用`Date`对象来表示一个时间
+
+**创建一个时间对象**
+
+如果直接使用构造函数创建一个`Date`对象，则会封装为当前代码执行的时间
+
+```javascript
+// 创建一个Date对象
+// 如果直接使用构造函数创建一个Date对象，则会封装为当前代码执行的时间
+var d = new Date();
+console.log(d); // Fri Jul 30 2022 21:51:37 GMT+0800 (中国标准时间)
+```
+
+**创建一个指定的时间对象**
+
+需要在构造函数中传递一个表示时间的字符串作为参数
+
+日期的格式：`月/日/年 时:分:秒`
+
+```javascript
+d = new Date("08/01/2022 12:34:56");
+console.log(d); // Sun Aug 01 2022 12:34:56 GMT+0800 (中国标准时间)
+d = new Date("08/01/21 12:34:56"); // 为了避免在不同浏览器中产生歧义，尽量指定完整年份
+console.log(d); // IE：Mon Aug 01 1921 12:34:56 GMT+0800 (中国标准时间)
+```
+
+**Date方法**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F30%2FzKbtL3HJSXDjqmW.png&sign=07d6a9d87a645ec3cf98d27b4ee2f79a02145da4fbe2575e531959e98558ee79)
+
+**getDate()**
+
+获取当前日期对象是几日
+
+```javascript
+var date = d.getDate();
+console.log("date = " + date); // date = 30
+```
+
+
+
+**getDay()**
+
+获取当前日期对象时周几，会返回一个**0-6**的值
+
+- 0 表示 周日
+
+- 1 表示 周一
+
+- ......
+
+- 6 表示 周六
+
+```javascript
+var day = d.getDay();
+console.log("day = " + day); // day = 5
+```
+
+
+
+**getMonth()**
+
+获取当前时间对象的月份-会返回一个**0-11**的值
+
+- 0 表示 1月
+
+- 1 表示 2月
+
+- ......
+
+- 11 表示 12月
+
+```javascript
+var month = d.getMonth();
+console.log("month = " + month); // month = 6
+console.log("month = " + (month + 1)); // month = 7
+```
+
+
+
+**getFullYear()**
+
+获取当前日期对象的年份
+
+```javascript
+var year = d.getFullYear();
+console.log("year = " + year); // year = 2022
+```
+
+
+
+**getTime()**
+
+获取当前日期对象的**时间戳**
+
+时间戳，指的是从格林威治标准时间的**1970年1月1日0时0分0秒**到当前日期所花费的毫秒数
+
+计算机底层在保存时间时使用都是时间戳
+
+```javascript
+// 示例：表示从1970年1月1日0时0分0秒到2021年22时25分26秒所花费的毫秒数
+var time = d.getTime();
+console.log(d); // Fri Jul 30 2021 22:25:26 GMT+0800 (中国标准时间)
+console.log("time = " + time); // time = 1627655017435
+```
+
