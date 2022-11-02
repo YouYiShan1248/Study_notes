@@ -748,7 +748,7 @@ fun5()();  // I'm fun6.
 
 ### 4.作用域
 
-直接编写在script标签中的JS代码，都在全局作用域
+直接编写在script标签中的JS代码，都在全局作用域 
 
 全局作用域在页面打开时创建，在页面关闭时销毁
 
@@ -1977,3 +1977,722 @@ console.log(d); // Fri Jul 30 2021 22:25:26 GMT+0800 (中国标准时间)
 console.log("time = " + time); // time = 1627655017435
 ```
 
+#### Math
+
+`Math`和其他的对象不同，不是一个构造函数
+
+属于一个工具类，不用创建对象，里边封装了数学运算相关的属性和方法
+
+**Math对象属性**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F30%2FMZFsPXyDCRNdtfo.png&sign=de26c29ad87b6083d45f8ecf92c468f9550181d23df6c884bb78960c660f8ddb)
+
+```javascript
+console.log(Math.E); // 2.718281828459045
+console.log(Math.PI); // 3.141592653589793
+```
+
+**Math对象方法**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F07%2F30%2FvBxrAkmeQ2tGzKf.png&sign=d63cd354512671246b88c2099c5e859510503e2fee772f4c57a78166f95d698d)
+
+**Math.abs()**
+
+可以用来计算一个数的绝对值
+
+```javascript
+console.log(Math.abs(-1)); // 1
+```
+
+
+
+**Math.ceil()**
+
+可以对一个数进行向上取整，小数位只要有值就自动进1
+
+```javascript
+console.log(Math.ceil(1.001)); // 2
+console.log(Math.ceil(1.0));   // 1
+```
+
+
+
+**Math.floor()**
+
+可以对一个数进行向下取整，小数部分会被舍掉
+
+```javascript
+console.log(Math.floor(1.999999)); // 1
+```
+
+
+
+**Math.round()**
+
+可以对一个数进行四舍五入取整
+
+```javascript
+console.log(Math.round(1.4)); // 1
+console.log(Math.round(1.5)); // 2
+```
+
+
+
+**Math.random()**
+
+可以用来生成一个**0-1**之间的随机数（开区间范围：`(0, 1)`）
+
+```JavaScript
+console.log(Math.random()); // 0.9192011449766921
+console.log(Math.random()); // 0.736135736878959
+```
+
+生成一个**0-10**之间的随机数：`Math.round(Math.random() * 10)`
+
+生成一个**0-X**之间的随机数：`Math.round(Math.random() * X)`
+
+生成一个**1-10**之间的随机数：`Math.round(Math.random() * 9 + 1)`
+
+生成一个**X-Y**之间的随机数：`Math.round(Math.random() * (Y - X) + X)`
+
+
+
+**Math.max()**
+
+可以获取多个数中的最大值
+
+```JavaScript
+console.log(Math.max(3,6,7,33)); // 33
+```
+
+
+
+**Math.min()**
+
+可以获取多个数中的最小值
+
+```JavaScript
+console.log(Math.min(3,6,7,33)); // 3
+```
+
+
+
+**Math.pow()**
+
+`Math.pow(x, y)`返回x的y次幂
+
+```JavaScript
+console.log(Math.pow(2,10)); // 1024
+```
+
+
+
+**Math.sqrt()**
+
+用于对一个数进行开方运算
+
+```JavaScript
+console.log(Math.sqrt(81)); // 9
+```
+
+### 9.包装类和字符串
+
+#### 三大包装类
+
+基本数据类型：`String`、`Number`、`Boolean`、`Null`、`Undefined`
+
+引用数据类型：`Object`
+
+在JS中为我们提供了三大包装类，通过这三个包装类可以将基本数据类型的数据转换为对象
+
+- `String()`可以将基本数据类型字符串转换为`String`对象
+
+- `Number()`可以将基本数据类型的数字转换为`Number`对象
+
+- `Boolean()`可以将基本数据类型的布尔值转换为`Boolean`对象
+
+```JavaScript
+var str1 = "hello";
+var str2 = new String();
+console.log(typeof str1); // string
+console.log(typeof str2); // object
+var num1 = 3;
+var num2 = new Number(3);
+console.log(typeof num1); // string
+console.log(typeof num2); // object
+var bol1 = true;
+var bol2 = new Boolean(true);
+console.log(typeof bol1); // string
+console.log(typeof bol2); // object
+```
+
+但是注意：我们在实际应用中不会使用基本数据类型的对象，如果使用基本数据类型的对象，在做一些比较时可能会带来一些不可预期的结果
+
+```JavaScript
+var n1 = new Number(1);
+var n2 = new Number(1);
+console.log(n1 == n2); // false
+var b = new Boolean(false);
+if(b){
+    console.log(b); // Boolean {false}
+}
+```
+
+方法和属性之能添加给对象，不能添加给基本数据类型（按照视频中的解释，是先将data临时转换为了一个包装类对象，进行了属性赋值操作；打印时又临时转换为了一个新的包装类对象，因为两次不是同一个对象，而且该对象刚刚创建，还没有任何属性和方法，所以是获取不到任何值的）
+
+```JavaScript
+var data = 4;
+data.hello = "hello";
+console.log(data.hello); // undefined
+```
+
+当我们对一些基本数据类型的值去调用属性和方法时，浏览器会临时使用包装类将其转换为对象，然后在调用对象的属性和方法时，浏览器会临时使用包装类将其转换为对象，然后在调用对象的属性和方法调用完以后，在将其转换为基本数据类型
+
+```JavaScript
+var s = 123;
+s = s.toString();
+console.log(s); // 123
+console.log(typeof s); // string
+```
+
+#### 字符串方法
+
+字符串在底层是以字符数组的形式保存的：`["H","e","l","l","o"," ","W","o","r","l","d","."]`
+
+```JavaScript
+var str = "Hello World.";
+console.log(str[0]); // H
+console.log(str[5]); //  
+console.log(str[12]); // undefined
+```
+
+
+
+**length属性**
+
+可以用来获取字符串的长度
+
+```JavaScript
+console.log(str.length); // 12
+```
+
+
+
+**charAt()**
+
+可以返回字符串中指定位置的字符，不会对原字符串产生影响
+
+```JavaScript
+var result = str.charAt(0);
+console.log(str); // Hello World.
+console.log(result); // H
+```
+
+
+
+**charCodeAt()**
+
+获取指定位置字符的字符编码（Unicode编码），不会对原字符串产生影响
+
+```JavaScript
+result = str.charCodeAt(0);
+console.log(str); // Hello World.
+console.log(result); // 72
+var str2 = "您好，世界。";
+result = str2.charCodeAt(0);
+console.log(result); // 24744
+```
+
+
+
+**String.formCharCode()**
+
+可以根据字符编码去获取字符
+
+```JavaScript
+result = String.fromCharCode(72);
+console.log(result); // H
+result = String.fromCharCode(24744);
+console.log(result); // 您
+result = String.fromCharCode(0x2682);
+console.log(result); // ⚂
+```
+
+
+
+**concat()**
+
+可以用来连接两个或多个字符串，作用和`+`一样，不会对原字符串产生影响
+
+```JavaScript
+result = str.concat("您好","世界");
+console.log(str); // Hello World.
+console.log(result); // Hello World.您好世界
+```
+
+
+
+**indexof()**
+
+该方法可以检索一个字符串中是否含有指定内容，不会对原字符串产生影响
+
+- 如果字符串中含有该内容，则返回其第一次出现的索引
+
+- 如果没有找到指定的内容，则返回`-1`
+
+```JavaScript
+result = str.indexOf("o");
+console.log(str); // Hello World.
+console.log(result); // 4
+result = str.indexOf("y");
+console.log(result); // -1
+```
+
+可以指定一个第二个参数，指定开始查找的位置
+
+```JavaScript
+result = str.indexOf("l",3);
+console.log(result); // 3
+result = str.indexOf("l",4);
+console.log(result); // 9
+```
+
+
+
+**lastIndexof()**
+
+该方法的用法和`indexOf()`一样，不同的是`indexOf`是从前往后找，而`lastIndexOf`是从后往前找
+
+但返回的索引是按照从前往后计数的
+
+```JavaScript
+result = str.lastIndexOf("o");
+console.log(result); // 7
+result = str.lastIndexOf("l");
+console.log(result); // 9
+```
+
+可以指定一个第二个参数，指定开始查找的位置（不过开始位置也是从后往前数的）
+
+```JavaScript
+result = str.lastIndexOf("l", 6);
+console.log(result); // 3
+```
+
+
+
+**slice()**
+
+可以从字符串中截取指定的内容，不会影响原字符串
+
+- 第一个参数，开始位置的索引（包括开始位置）
+
+- 第二个参数，结束位置的索引（不包括结束位置）
+
+```JavaScript
+result = str.slice(0,2);
+console.log(str); // Hello World.
+console.log(result); // He
+```
+
+如果省略第二个参数，则会截取到后边所有的
+
+```JavaScript
+result = str.slice(6);
+console.log(result); // World.
+```
+
+也可以传递一个负数作为参数，负数的话将会从后边计算
+
+```javascript
+result = str.slice(6,-1);
+console.log(result); // World
+```
+
+
+
+**substring()**
+
+可以用来截取一个字符串，不会影响原字符串，和`slice()`类似
+
+- 第一个参数，开始位置的索引（包括开始位置）
+
+- 第二个参数，结束位置的索引（不包括结束位置）
+
+```JavaScript
+result = str.substring(0,2);
+console.log(str); // Hello World.
+console.log(result); // He
+```
+
+不同的是这个方法不能接受负值作为参数，如果传递了一个负值，则默认使用0
+
+而且会自动调整参数的位置，如果第二个参数小于第一个，则自动交换
+
+```JavaScript
+result = str.substring(1,-1); // 自动调整为str.substring(0,1);
+console.log(result); // H
+result = str.substring(1,0); // 自动调整为str.substring(0,1);
+console.log(result); // H
+```
+
+
+
+**split()**
+
+可以将一个字符串拆分为一个数组，不会影响原字符串
+
+需要一个字符串作为参数，将会根据该字符串去拆分数组
+
+```JavaScript
+result = str.split("o");
+console.log(str); // Hello World.
+console.log(result); // ["Hell", " W", "rld."]
+console.log(result[0]); // Hell
+console.log(result[1]); //  W
+console.log(result[2]); // rld.
+```
+
+如果传递一个空串作为参数，则会将每个字符都拆分为数组中的一个元素
+
+```JavaScript
+result = str.split("");
+console.log(result); // ["H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d", "."]
+```
+
+
+
+**toUpperCase()**
+
+将一个字符串转换为大写并返回，不会影响原字符串
+
+```JavaScript
+result = str.toUpperCase();
+console.log(str); // Hello World.
+console.log(result); // HELLO WORLD.
+```
+
+
+
+**toLowerCase()**
+
+将一个字符串转换为小写并返回，不会影响原字符串
+
+```JavaScript
+result = str.toLowerCase();
+console.log(str); // Hello World.
+console.log(result); // hello world.
+```
+
+### 10.正则表达式
+
+正则表达式用于定义一些字符串的规则，计算机可以根据正则表达式，来检查一个字符串是否符合规则，或者将字符串中符合规则的内容提取出来
+
+#### 正则对象
+
+语法：`var 变量 = new RegExp("正则表达式", "匹配模式");`
+
+```JavaScript
+// 这个正则表达式可以来检查一个字符串中是否含有a
+var reg = new RegExp("a");
+console.log(reg); // /a/
+```
+
+使用`typeof`检查正则对象，会返回`object`
+
+```JavaScript
+console.log(typeof reg); // object
+```
+
+#### 正则方法
+
+正则表达式的方法：`test()`
+
+使用这个方法可以用来检查一个字符串是否符合正则表达式的规则，如果符合则返回`true`，否则返回`false`
+
+```javascript
+var result = reg.test("abd");
+console.log(result); // true
+result = reg.test("hgf");
+console.log(result); // false
+result = reg.test("Abd");
+console.log(result); // false
+```
+
+在构造函数中可以传递一个匹配模式作为第二个参数，可以是
+
+- `i` ignoreCase，忽略大小写
+
+- `g` global，全局匹配模式
+
+```JavaScript
+reg = new RegExp("a","i");
+result = reg.test("Abd");
+console.log(result); // true
+```
+
+#### 正则语法
+
+使用字面量来创建正则表达式，语法：`var 变量 = /正则表达式/匹配模式;`
+
+使用字面量的方式创建更加简单；使用构造函数创建更加灵活
+
+```JavaScript
+reg = /a/i;
+result = reg.test("Abd");
+console.log(result); // true
+```
+
+使用`|`表示或者的意思
+
+```JavaScript
+// 创建一个正则表达式，检查一个字符串中是否有a或b或c
+reg = /a|b|c/i;
+result = reg.test("Abcd");
+console.log(result); // true
+result = reg.test("bcd");
+console.log(result); // true
+result = reg.test("cd");
+console.log(result); // true
+result = reg.test("d");
+console.log(result); // false
+```
+
+`[]`里的内容也是或的关系：`[abc] == a|b|c`
+
+```JavaScript
+reg = /[abc]/i;
+result = reg.test("bcd");
+console.log(result); // true
+```
+
+`[a-z]`任意小写字母
+
+```JavaScript
+reg = /[a-z]/;
+result = reg.test("Abc");
+console.log(result); // true
+result = reg.test("ABC");
+console.log(result); // false
+```
+
+`[A-Z]`任意大写字母
+
+```JavaScript
+reg = /[A-Z]/;
+result = reg.test("abc");
+console.log(result); // false
+result = reg.test("ABC");
+console.log(result); // true
+```
+
+`[A-z]`任意字母
+
+```JavaScript
+reg = /[A-z]/;
+result = reg.test("abc");
+console.log(result); // true
+result = reg.test("ABC");
+console.log(result); // true
+```
+
+`[0-9]`任意数字
+
+```JavaScript
+reg = /[0-9]/;
+result = reg.test("123");
+console.log(result); // true
+result = reg.test("abc");
+console.log(result); // false
+```
+
+`[^ ]`除了
+
+```JavaScript
+reg = /[^a]/; // 除了a以外的字符
+result = reg.test("a");
+console.log(result); // false
+result = reg.test("b");
+console.log(result); // true
+```
+
+`[^0-9]`除了数字
+
+```
+reg = /[^0-9]/;
+result = reg.test("123");
+console.log(result); // false
+result = reg.test("abc");
+console.log(result); // true
+```
+
+**小结**
+
+| 表达式            | 描述                         |
+| ----------------- | ---------------------------- |
+| `[abc]`           | 查找方括号之间的任何字符     |
+| `[^abc]`          | 查找任何不在方括号之间的字符 |
+| `[0-9]`           | 查找任何从0至9的数字         |
+| `[a-z]`           | 查找任何从小写a到小写z的字符 |
+| `[A-Z]`           | 查找任何从大写A到大写Z的字符 |
+| `[A-z]`           | 查找任何从大写A到小写z的字符 |
+| `[ojbk]`          | 查找给定集合内的任何字符     |
+| `[^ojbk]`         | 查找给定集合外的任何字符     |
+| `(ed|blue|green)` | 查找任何指定的选项           |
+
+**量词**
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2FNHQP4FVk1ATS3vC.png&sign=1cfd2b17c0c96d9a8faa252d99fb1e13da1f09ded5797f9adabbfaa1bcd4f714)
+
+通过量词可以设置一个内容出现的次数
+
+量词只对它前边的一个内容起作用
+
+`{n}`正好出现n次 
+
+```JavaScript
+// 创建一个正则表达式检查一个字符串中是否含有aaa
+var reg = /a{3}/;
+console.log(reg.test("aaabc")); // true
+// 创建一个正则表达式检查一个字符串中是否含有ababab
+reg = /ab{3}/;
+console.log(reg.test("ababab")); // false
+console.log(reg.test("aaabbb")); // true
+reg = /(ab){3}/;
+console.log(reg.test("ababab")); // true
+```
+
+
+
+ `{m,n}`出现m-n次
+
+```JavaScript
+reg = /ab{3,4}c/;
+console.log(reg.test("abbc")); // false
+console.log(reg.test("abbbc")); // true
+console.log(reg.test("abbbbc")); // true
+console.log(reg.test("abbbbbc")); // false
+```
+
+
+
+ `{m,}` 出现m次以上 
+
+```JavaScript
+reg = /ab{3,}c/;
+console.log(reg.test("abbbc")); // true
+console.log(reg.test("abbbbbc")); // true
+```
+
+
+
+#### 字符串和正则相关的方法
+
+**split()**
+
+可以将一个字符串拆分为一个数组，不会影响原字符串
+
+方法中可以传递一个正则表达式作为参数，这样方法将会根据正则表达式去拆分字符串
+
+`split()`方法即使不指定全局匹配，也会全都拆分
+
+```JavaScript
+// 根据任意字母来将字符串拆分
+var str = "1a2b3c4d5e6f7g8h9i0";
+var result = str.split(/[A-z]/);
+console.log(str); // 1a2b3c4d5e6A7B8C9D0
+console.log(result); // ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+```
+
+**search()**
+
+可以搜索字符串中是否含有指定内容，不会影响原字符串
+
+如果搜索到指定内容，则会返回第一次出现的索引，如果没有搜索到返回-1
+
+它可以接受一个正则表达式作为参数，然后会根据正则表达式去检索字符串
+
+`search()`只会查找第一个，即使设置全局匹配也没用
+
+```JavaScript
+str = "Hello abc Hello afc agc";
+result = str.search(/a[A-z]c/);
+console.log(str); // 1a2b3c4d5e6A7B8C9D0
+console.log(result); // 6
+```
+
+**match()**
+
+可以根据正则表达式，从一个字符串中将符合条件的内容提取出来，不会影响原字符串
+
+默认情况下我们的match只会找到第一个符合要求的内容，找到以后就停止检索
+
+```JavaScript
+str = "1a2b3c4d5e6A7B8C9D0";
+result = str.match(/[a-z]/);
+console.log(str); // 1a2b3c4d5e6A7B8C9D0
+console.log(result); // ["a", index: 1, input: "1a2b3c4d5e6A7B8C9D0", groups: undefined]
+```
+
+可以设置正则表达式为全局匹配模式，这样就会匹配到所有的内容
+
+```JavaScript
+result = str.match(/[a-z]/g);
+console.log(result); // ["a", "b", "c", "d", "e"]
+```
+
+可以为一个正则表达式设置多个匹配模式，且顺序无所谓
+
+```JavaScript
+result = str.split(/[a-z]/ig);
+console.log(result); // ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+```
+
+`match()`会将匹配到的内容封装到一个数组中返回，即使只查询到一个结果
+
+```JavaScript
+console.log(Array.isArray(result)); // true
+console.log(result[0]); // a
+console.log(result[5]); // A
+```
+
+**replace()**
+
+可以将字符串中指定内容替换为新的内容，不会影响原字符串
+
+参数：
+
+1. 被替换的内容，可以接受一个正则表达式作为参数
+2. 新的内容
+
+```JavaScript
+result = str.replace("a","@_@");
+console.log(str); // 1a2b3c4d5e6A7B8C9D0
+console.log(result); // 1@_@2b3c4d5e6A7B8C9D0
+```
+
+默认只会替换第一个，可以使用正则表达式的全局匹配模式
+
+```JavaScript
+str = "1a2a3a4a5a6A7B8C9D0";
+result = str.replace("a","@_@");
+console.log(result); // 1@_@2a3a4a5a6A7B8C9D0
+result = str.replace(/a/g,"@_@");
+console.log(result); // 1@_@2@_@3@_@4@_@5@_@6A7B8C9D0
+result = str.replace(/a/gi,"@_@");
+console.log(result); // 1@_@2@_@3@_@4@_@5@_@6@_@7B8C9D0
+result = str.replace(/[a-z]/gi,"@_@");
+console.log(result); // 1@_@2@_@3@_@4@_@5@_@6@_@7@_@8@_@9@_@0
+result = str.replace(/[a-z]/gi,"");
+console.log(result); // 1234567890
+```
+
+**小结**
+
+- `split()`方法用于拆分，即使不指定全局匹配，也会全都拆分
+
+- `search`方法用于搜索，只会查找第一个，即使设置全局匹配也没用
+
+- `match`方法用于提取
+
+- `replace`方法用于替换
