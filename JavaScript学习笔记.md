@@ -2586,6 +2586,65 @@ console.log(reg.test("abbbbbc")); // true
 
 
 
+ `+`至少一个，相当于`{1,}` 
+
+```JavaScript
+reg = /ab+c/;
+console.log(reg.test("ac")); // false
+console.log(reg.test("abc")); // true
+console.log(reg.test("abbbc")); // true
+```
+
+
+
+ `^`表示开头 
+
+```javascript
+// 检查一个字符串中是否以a开头
+reg = /^a/;
+console.log(reg.test("ac")); // true
+console.log(reg.test("bac")); // false
+```
+
+
+
+ `$`表示结尾 
+
+```javascript
+// 检查一个字符串中是否以a结尾
+reg = /a$/;
+console.log(reg.test("abac")); // false
+console.log(reg.test("abaca")); // true
+```
+
+
+
+#### 元字符
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2FbuwlvEJMs42pdCa.png&sign=5219c95d0beef27c7bd9ec225f978315cb271b742e9256181cff7af48241b171)
+
+在正则表达式中使用`\`作为转义字符
+
+-  `\.`来表示`.` 
+
+  ```JavaScript
+  reg = /\./;
+  console.log(reg.test("ab")); // false
+  console.log(reg.test("a.b")); // true
+  ```
+
+-  `\\`表示`\` 
+
+  ```JavaScript
+  reg = /\\/;
+  console.log(reg.test("ab")); // false
+  console.log(reg.test("a\")); // Uncaught SyntaxError: Invalid or unexpected token
+  console.log(reg.test("a\b")); // false
+  console.log(reg.test("a\\b")); // true
+  ```
+
+  
+
 #### 字符串和正则相关的方法
 
 **split()**
@@ -2696,3 +2755,1012 @@ console.log(result); // 1234567890
 - `match`方法用于提取
 
 - `replace`方法用于替换
+
+#### 常用正则表达式
+
+**校验数字的表达式**
+
+```JavaScript
+数字：^[0-9]*$
+n位的数字：^\d{n}$
+至少n位的数字：^\d{n,}$
+m-n位的数字：^\d{m,n}$
+零和非零开头的数字：^(0|[1-9][0-9]*)$
+非零开头的最多带两位小数的数字：^([1-9][0-9]*)+(.[0-9]{1,2})?$
+带1-2位小数的正数或负数：^(\-)?\d+(\.\d{1,2})?$
+正数、负数、和小数：^(\-|\+)?\d+(\.\d+)?$
+有两位小数的正实数：^[0-9]+(.[0-9]{2})?$
+有1~3位小数的正实数：^[0-9]+(.[0-9]{1,3})?$
+非零的正整数：^[1-9]\d*$ 或 ^([1-9][0-9]*){1,3}$ 或 ^\+?[1-9][0-9]*$
+非零的负整数：^\-[1-9][]0-9"*$ 或 ^-[1-9]\d*$
+非负整数：^\d+$ 或 ^[1-9]\d*|0$
+非正整数：^-[1-9]\d*|0$ 或 ^((-\d+)|(0+))$
+非负浮点数：^\d+(\.\d+)?$ 或 ^[1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0$
+非正浮点数：^((-\d+(\.\d+)?)|(0+(\.0+)?))$ 或 ^(-([1-9]\d*\.\d*|0\.\d*[1-9]\d*))|0?\.0+|0$
+正浮点数：^[1-9]\d*\.\d*|0\.\d*[1-9]\d*$ 或 ^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$
+负浮点数：^-([1-9]\d*\.\d*|0\.\d*[1-9]\d*)$ 或 ^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$
+浮点数：^(-?\d+)(\.\d+)?$ 或 ^-?([1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0)$
+```
+
+**校验字符的表达式**
+
+```JavaScript
+汉字：^[\u4e00-\u9fa5]{0,}$
+英文和数字：^[A-Za-z0-9]+$ 或 ^[A-Za-z0-9]{4,40}$
+长度为3-20的所有字符：^.{3,20}$
+由26个英文字母组成的字符串：^[A-Za-z]+$
+由26个大写英文字母组成的字符串：^[A-Z]+$
+由26个小写英文字母组成的字符串：^[a-z]+$
+由数字和26个英文字母组成的字符串：^[A-Za-z0-9]+$
+由数字、26个英文字母或者下划线组成的字符串：^\w+$ 或 ^\w{3,20}$
+中文、英文、数字包括下划线：^[\u4E00-\u9FA5A-Za-z0-9_]+$
+中文、英文、数字但不包括下划线等符号：^[\u4E00-\u9FA5A-Za-z0-9]+$ 或 ^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$
+可以输入含有^%&',;=?$\"等字符：[^%&',;=?$\x22]+
+禁止输入含有~的字符：[^~\x22]+
+```
+
+**特殊需求表达式**
+
+```JavaScript
+Email地址：^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
+域名：[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?
+InternetURL：[a-zA-z]+://[^\s]* 或 ^http://([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?$
+手机号码：^(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])\d{8}$ (由于工信部放号段不定时，所以建议使用泛解析 ^([1][3,4,5,6,7,8,9])\d{9}$)
+电话号码("XXX-XXXXXXX"、"XXXX-XXXXXXXX"、"XXX-XXXXXXX"、"XXX-XXXXXXXX"、"XXXXXXX"和"XXXXXXXX)：^(\(\d{3,4}-)|\d{3.4}-)?\d{7,8}$ 
+国内电话号码(0511-4405222、021-87888822)：\d{3}-\d{8}|\d{4}-\d{7} 
+18位身份证号码(数字、字母x结尾)：^((\d{18})|([0-9x]{18})|([0-9X]{18}))$
+帐号是否合法(字母开头，允许5-16字节，允许字母数字下划线)：^[a-zA-Z][a-zA-Z0-9_]{4,15}$
+密码(以字母开头，长度在6~18之间，只能包含字母、数字和下划线)：^[a-zA-Z]\w{5,17}$
+强密码(必须包含大小写字母和数字的组合，不能使用特殊字符，长度在8-10之间)：^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$  
+日期格式：^\d{4}-\d{1,2}-\d{1,2}
+一年的12个月(01～09和1～12)：^(0?[1-9]|1[0-2])$
+一个月的31天(01～09和1～31)：^((0?[1-9])|((1|2)[0-9])|30|31)$ 
+钱的输入格式：
+    1.有四种钱的表示形式我们可以接受:"10000.00" 和 "10,000.00", 和没有 "分" 的 "10000" 和 "10,000"：^[1-9][0-9]*$ 
+    2.这表示任意一个不以0开头的数字,但是,这也意味着一个字符"0"不通过,所以我们采用下面的形式：^(0|[1-9][0-9]*)$ 
+    3.一个0或者一个不以0开头的数字.我们还可以允许开头有一个负号：^(0|-?[1-9][0-9]*)$ 
+    4.这表示一个0或者一个可能为负的开头不为0的数字.让用户以0开头好了.把负号的也去掉,因为钱总不能是负的吧.下面我们要加的是说明可能的小数部分：^[0-9]+(.[0-9]+)?$ 
+    5.必须说明的是,小数点后面至少应该有1位数,所以"10."是不通过的,但是 "10" 和 "10.2" 是通过的：^[0-9]+(.[0-9]{2})?$ 
+    6.这样我们规定小数点后面必须有两位,如果你认为太苛刻了,可以这样：^[0-9]+(.[0-9]{1,2})?$ 
+    7.这样就允许用户只写一位小数.下面我们该考虑数字中的逗号了,我们可以这样：^[0-9]{1,3}(,[0-9]{3})*(.[0-9]{1,2})?$ 
+    8.1到3个数字,后面跟着任意个 逗号+3个数字,逗号成为可选,而不是必须：^([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,2})?$ 
+    备注：这就是最终结果了,别忘了"+"可以用"*"替代如果你觉得空字符串也可以接受的话(奇怪,为什么?)最后,别忘了在用函数时去掉去掉那个反斜杠,一般的错误都在这里
+xml文件：^([a-zA-Z]+-?)+[a-zA-Z0-9]+\\.[x|X][m|M][l|L]$
+中文字符的正则表达式：[\u4e00-\u9fa5]
+双字节字符：[^\x00-\xff]    (包括汉字在内，可以用来计算字符串的长度(一个双字节字符长度计2，ASCII字符计1))
+空白行的正则表达式：\n\s*\r    (可以用来删除空白行)
+HTML标记的正则表达式：<(\S*?)[^>]*>.*?</\1>|<.*? />    (网上流传的版本太糟糕，上面这个也仅仅能部分，对于复杂的嵌套标记依旧无能为力)
+首尾空白字符的正则表达式：^\s*|\s*$或(^\s*)|(\s*$)    (可以用来删除行首行尾的空白字符(包括空格、制表符、换页符等等)，非常有用的表达式)
+腾讯QQ号：[1-9][0-9]{4,}    (腾讯QQ号从10000开始)
+中国邮政编码：[1-9]\d{5}(?!\d)    (中国邮政编码为6位数字)
+IP地址：\d+\.\d+\.\d+\.\d+    (提取IP地址时有用)
+IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))    (由@飞龙三少 提供,感谢共享)
+```
+
+### 11.DOM
+
+#### 1.DOM简介
+
+DOM，全称Document Object Model **文档对象模型**。
+
+JS中通过DOM来对HTML文档进行操作。只要理解了DOM就可以随心所欲的操作WEB页面。
+
+##### 文档
+
+文档表示的就是整个的HTML网页文档
+
+##### 对象
+
+对象表示将网页中的每一个部分都转换为了一个对象
+
+##### 模型
+
+使用模型来表示对象之间的关系，这样方便我们获取对象
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2F7o8bmgeQHFXhly9.png&sign=53b6fc4d22182b5ed0b49bb61ea1a0c36140a561c6ab7fe15cc55e9ff6b85474)
+
+DOM树体现了节点与节点之间的关系
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2FsoiEQhjyu3AzNJ1.png&sign=daa9e40f55bb61eadb4fc40b390c7ba4b40ebfb8134b4964b4b549704a1d2d33)
+
+
+
+
+
+#### 2.节点
+
+节点Node，是构成我们网页的最基本的组成部分，网页中的每一个部分都可以称为是一个节点
+
+比如：html标签、属性、文本、注释、整个文档等都是一个节点
+
+虽然都是节点，但是实际上他们的具体类型是不同的。比如：
+
+- 标签称为元素节点
+
+- 属性称为属性节点
+
+- 文本称为文本节点
+
+- 文档称为文档节点
+
+
+
+节点的类型不同，属性和方法也都不尽相同
+
+##### 节点类型
+
+节点：Node——构成HTML文档最基本的单元
+
+常用节点分为四类
+
+- 文档节点：整个HTML文档
+
+- 元素节点：HTML文档中的HTL标签
+
+- 属性节点：元素的属性
+
+- 文本节点：HTML标签中的文本内容
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2FR1AOaxYnNyDi2mH.png&sign=6bfb97617ff63f541ab582e99b7b4939ddf95f50090563ba2c251f9b3091af96)
+
+##### 节点属性
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2FwfuSynGj5DVaKbt.png&sign=6ce21919b85333523b427330023607cf796d8c97ff5efaa5a8d775c215f61f9b)
+
+
+
+##### 文档节点（Document）
+
+文档节点`document`，代表的是整个HTML文档，网页中的所有节点都是它的子节点
+
+`document`对象作为`window`对象的属性存在的，我们不用获取可以直接使用
+
+通过该对象我们可以在整个文档访问内查找节点对象，并可以通过该对象创建各种节点对象
+
+##### 元素节点（Element）
+
+HTML中的各种标签都是元素节点，这也是我们最常用的一个节点
+
+浏览器会将页面中所有的标签都转换为一个元素节点，我们可以通过`document`的方法来获取元素节点
+
+比如：`document.getElementById()` 根据id属性值获取一个元素节点对象。
+
+##### 文本节点（Text）
+
+文本节点表示的是HTML标签以外的文本内容，任意非HTML的文本都是文本节点
+
+它包括可以字面解释的纯文本内容
+
+文本节点一般是作为元素节点的子节点存在的
+
+获取文本节点时，一般先要获取元素节点，再通过元素节点获取文本节点。例如：`元素节点.firstChild;`
+
+获取元素节点的第一个子节点，一般为文本节点
+
+##### 属性节点（Attr）
+
+属性节点表示的是标签中的一个一个的属性，这里要注意的是属性节点并非是元素节点的子节点，而是元素节点的一部分
+
+可以通过元素节点来获取指定的属性节点。例如：`元素节点.getAttributeNode("属性名");`
+
+**注意：我们一般不使用属性节点**
+
+浏览器已经为我们提供文档节点对象，这个对象是`window`
+
+属性可以在页面中直接使用，文档节点代表的是整个网页
+
+```JavaScript
+// 获取button对象
+var btn = document.getElementById("btn");
+console.log(btn); // <button type="button" id="btn">我是一个按钮</button>
+// 修改btn的文本节点内容
+btn.innerHTML = "I'm a button.";
+```
+
+
+
+#### 3.事件
+
+事件，就是文档或浏览器窗口中发生的一些特定的交互瞬间
+
+JavaScript与HTML之间的交互是通过事件实现的
+
+对于Web应用来说，有下面这些代表性的事件：点击某个元素、将鼠标移动至某个元素上方、按下键盘上某个键，等等
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F01%2F61nwvAuQcM7lDUb.png&sign=3420c6d4fba7c304b15b6a5151d99b1fd80a4eeb8ab6f2dbd74532dc011d7b89)
+
+我们可以在事件对应的属性中设置一些js代码，这样当事件被触发时，这些代码将会执行
+
+```JavaScript
+<button type="button" id="btn" onclick="alert('Fuck');">我是一个按钮</button>
+```
+
+这种写法我们称为结构和行为耦合，不方便维护，不推荐使用
+
+
+
+可以为按钮的对应事件绑定处理函数的形式来响应事件，这样当事件被触发时，其对应的函数将会被调用
+
+```JavaScript
+// 获取对象
+var btn = document.getElementById("btn");
+
+// 绑定一个单击事件
+btn.onclick = function(){
+    alert("Don't touch me.");
+}
+```
+
+像这种为单击事件绑定的函数，我们称为单击响应函数
+
+
+
+#### 4.文档的加载
+
+当我们把`script`标签放到`head`中时，会报错`UncaughtTypeError: Cannot set property 'innerHTML' of null`，这是为什么呢？
+
+
+
+浏览器在加载一个页面时，是按照自上向下的顺序加载的，读取到一行就运行一行，如果将`script`标签写到页面的上边，在代码执行时，页面还没有加载，DOM对象也没有加载，会导致无法获取到DOM对象
+
+`onload`事件会在整个页面加载完成之后才触发，可以为`window`对象绑定一个`onload`事件
+
+```javascript
+window.onload = function(){
+    // 获取button对象
+    var btn = document.getElementById("btn");
+    // 绑定一个单击事件
+    btn.onclick = function(){
+        alert("Don't touch me.");
+    }
+}
+```
+
+该事件对应的响应函数将会在页面加载完成之后执行，这样可以确保我们的代码执行时所有的DOM对象已经加载完毕了
+
+#### 5.DOM查询
+
+##### 获取元素节点
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F03%2FtuBpZTmWkhsE6nV.png&sign=d3f03dc338ff050e4b007ba3dabfb11b977ad9dbc77d496e555204168d266b3a)
+
+通过document对象调用
+
+为了方便，定义一个通用的函数，专门用来为指定元素绑定单击响应函数
+
+```JavaScript
+// 参数：
+// 	idstr	要绑定单击响应函数的对象的id属性值
+// 	fun		事件的回调函数，当单击元素时，该函数将会被触发
+function myClick(idStr, fun){
+    var btn = document.getElementById(idStr);
+    btn.onclick = fun;
+}
+```
+
+
+
+-  `getElementById()` 通过id属性获取**一个**元素节点对象 
+
+```JavaScript
+myClick("btn01", function () {
+    // innerHTML 通过这个属性可以获取到元素内部的html代码
+    alert(document.getElementById("bj").innerHTML); // 北京
+});
+```
+
+
+
+-  `getElementsByTagName()` 通过标签名获取**一组**元素节点对象 
+
+```JavaScript
+myClick("btn02", function () {
+    // getElementsByTagName()可以根据标签名来获取一组元素节点对象
+    // 这个方法会给我们返回一个类数组对象，所有查询到的元素都会封装到对象中
+    // 即使查询到的元素只有一个，也会封装到数组中返回
+    var li_list = document.getElementsByTagName("li");
+    alert(li_list.length); // 14
+    
+    var arr = [];
+    for(var i=0;i<li_list.length;i++){
+        arr.push(li_list[i].innerHTML);
+    }
+    alert(arr); // 北京,上海,东京,首尔,红警,实况,极品飞车,魔兽,IOS,Android,Windows Phone,IOS,Android,Windows Phone
+});
+```
+
+
+
+-  `getElementsByName()` 通过name属性获取**一组**元素节点对象 
+
+```JavaScript
+myClick("btn03", function () {
+    var inputs = document.getElementsByName("gender");
+    alert(inputs.length); // 2
+    
+    var arr = [];
+    for(var i=0;i<inputs.length;i++){
+        // innerHTML用于获取元素内战的HTML代码的
+        // 如果需要读取元素节点属性，直接使用`元素.属性名`
+        // 例子：`元素.id`  `元素.name`  `元素.value`
+        arr.push(inputs[i].value); 
+        // 注意：class属性不能采用这种方式，读取class属性时需要使用`元素.className`
+        arr.push(inputs[i].className);
+    }
+    alert(arr); // male,hello,female,hello
+});
+```
+
+##### 获取元素节点的子节点
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F03%2FwRicLYSWEshzxBX.png&sign=900804f3492f84fd4f7893c24d184c3e9583efa5b3b4372afbdca3f32f9165b0)
+
+
+
+通过具体的元素节点调用
+
+-  `getElementsByTagName()`方法，返回当前节点的指定标签名后代节点 
+
+```JavaScript
+myClick("btn04", function () {
+    var city = document.getElementById("city");
+    // 获取city下1i节点
+    var list = city.getElementsByTagName("li");
+    alert(list.length); // 4
+    
+    var arr = [];
+    for(var i=0;i<list.length;i++){
+        arr.push(list[i].innerHTML);
+    }
+    alert(arr); // 北京,上海,东京,首尔
+});
+```
+
+
+
+-  `childNodes`属性，表示当前节点的所有子节点 
+
+```JavaScript
+myClick("btn05", function () {
+    var city = document.getElementById("city");
+    // childNodes属性会获取包括文本节点在内的所有节点
+    // 根据DOM标签标签间空白也会当成文本节点
+    // 注意：在IE8及以下的浏览器中，不会将空白文本当成子节点
+    // 所以该属性在IE8中会返回4个子元素，而其他浏览器是9个
+    var list = city.childNodes;
+    alert(list.length); // 9
+    
+    var arr = [];
+    for(var i=0;i<list.length;i++){
+        arr.push(list[i]);
+    }
+    alert(arr); // [object Text],[object HTMLLIElement],[object Text],[object HTMLLIElement],[object Text],[object HTMLLIElement],[object Text],[object HTMLLIElement],[object Text]
+});
+myClick("btn05", function () {
+    var city = document.getElementById("city");
+    // children属性可以获取当前元素的所有子元素
+    var list = city.children;
+    alert(list.length); // 4
+    
+    var arr = [];
+    for(var i=0;i<list.length;i++){
+        arr.push(list[i].innerHTML);
+    }
+    alert(arr); // 北京,上海,东京,首尔
+});
+```
+
+
+
+-  `firstChild`属性，表示当前节点的第一个子节点 
+
+```JavaScript
+myClick("btn06", function () {
+    var phone = document.getElementById("phone");
+    // firstChild可以获取到当前元素的第一个子节点（包括空白文本节点）
+    var firstChild = phone.firstChild;				
+    alert(firstChild); // [object HTMLLIElement]
+    alert(firstChild.innerHTML); // IOS
+});
+myClick("btn06", function () {
+    var phone2 = document.getElementById("phone2");
+    // firstChild可以获取到当前元素的第一个子节点（包括空白文本节点）
+    var firstChild = phone2.firstChild;				
+    alert(firstChild); // [object Text]
+    alert(firstChild.innerHTML); // undefined
+});
+myClick("btn06", function () {
+    var phone2 = document.getElementById("phone2");
+    // firstElementchild不支持IE8及以下的浏览器，如果需要兼容他们尽量不要使用
+    var firstElementChild = phone2.firstElementChild;				
+    alert(firstElementChild); // [object HTMLLIElement]
+    alert(firstElementChild.innerHTML); // IOS
+});
+```
+
+
+
+-  `lastChild`属性，表示当前节点的最后一个子节点 
+
+```JavaScript
+document.getElementById("btn062").onclick = function () {
+    var phone = document.getElementById("phone");
+    // children属性可以获取当前元素的所有子元素
+    var lastChild = phone.lastChild;				
+    alert(lastChild); // [object HTMLLIElement]
+    alert(lastChild.innerHTML); // Windows Phone
+});
+```
+
+
+
+##### 获取父节点和兄弟节点
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F03%2Fgo8P6iSVcHqYzLU.png&sign=468004a9ed06720e14f3401dedfffda1249cde492a4b26f37b759bcdf62e9639)
+
+通过具体的节点调用
+
+-  `parentNode`属性，表示当前节点的父节点 
+
+```JavaScript
+myClick("btn07", function () {
+    var bj = document.getElementById("bj");
+    var parentNode = bj.parentNode;				
+    alert(parentNode); // [object HTMLUListElement]
+    alert(parentNode.innerHTML);
+    // <li id="bj">北京</li>
+    // <li>上海</li>
+    // <li>东京</li>
+    // <li>首尔</li>
+    
+    // innerText
+    // -该属性可以获取到元素内部的文本内容
+    // -它和innerHTML类似，不同的是它会自动将htm1去除
+    alert(parentNode.innerText);
+    // 北京
+    // 上海
+    // 东京
+    // 首尔
+});
+```
+
+
+
+-  `previousSibling`属性，表示当前节点的前一个兄弟节点 
+
+```JavaScript
+myClick("btn08", function () {
+    var android = document.getElementById("android");
+    // 返回#android的前一个兄弟节点（也可能获取到空白的文本）
+    var previousSibling = android.previousSibling;				
+    alert(previousSibling); // [object HTMLLIElement]
+    alert(previousSibling.innerHTML); // IOS
+});
+myClick("btn08", function () {
+    var android2 = document.getElementById("android2");
+    // 返回#android的前一个兄弟节点（也可能获取到空白的文本）
+    var previousSibling = android2.previousSibling;				
+    alert(previousSibling); // [object Text]
+    alert(previousSibling.innerHTML); // undefined
+});
+myClick("btn08", function () {
+    var android2 = document.getElementById("android2");
+    // previousElementSibling获取前一个兄弟元素，IE8及以下不支持
+    var previousElementSibling = android2.previousElementSibling;				
+    alert(previousElementSibling); // [object HTMLLIElement]
+    alert(previousElementSibling.innerHTML); // IOS
+});
+```
+
+
+
+-  `nextSibling`属性，表示当前节点的后一个兄弟节点 
+
+```JavaScript
+myClick("btn082", function () {
+    var android = document.getElementById("android");
+    // 返回#android的前一个兄弟节点（也可能获取到空白的文本）
+    var nextSibling = android.nextSibling;				
+    alert(nextSibling); // [object HTMLLIElement]
+    alert(nextSibling.innerHTML); // Windows Phone
+});
+```
+
+
+
+**案例：选择器**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      window.onload = function () {
+        //获取四个按钮
+        var items = document.getElementsByName("items");
+        //全选按钮
+        var checkedAllBtn = document.getElementById("checkedAllBtn");
+        checkedAllBtn.onclick = function () {
+          for (var i = 0; i < items.length; i++) {
+            items[i].checked = true;
+          }
+        };
+
+        //全不选
+        var checkedNoBtn = document.getElementById("checkedNoBtn");
+        checkedNoBtn.onclick = function () {
+          for (var i = 0; i < items.length; i++) {
+            items[i].checked = false;
+          }
+        };
+
+        //反选
+        var checkedRevBtn = document.getElementById("checkedRevBtn");
+        checkedRevBtn.onclick = function () {
+          for (var i = 0; i < items.length; i++) {
+            items[i].checked = !items[i].checked;
+          }
+        };
+
+        //全选和全不选的切换
+        var checkedAllBox = document.getElementById("checkedAllBox");
+        checkedAllBox.onclick = function () {
+          if (checkedAllBox.checked == false) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].checked = false;
+            }
+          } else {
+            for (var i = 0; i < items.length; i++) {
+              items[i].checked = true;
+            }
+          }
+        };
+
+        //提交
+        var sendBtn = document.getElementById("sendBtn");
+        sendBtn.onclick = function () {
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].checked) {
+              alert(items[i].value);
+            }
+          }
+        };
+      };
+    </script>
+  </head>
+  <body>
+    <form method="post" action="">
+      你爱好的运动是？<input type="checkbox" id="checkedAllBox" />全选/全不选
+      <br />
+      <input type="checkbox" name="items" value="足球" />足球
+      <input type="checkbox" name="items" value="篮球" />篮球
+      <input type="checkbox" name="items" value="羽毛球" />羽毛球
+      <input type="checkbox" name="items" value="乒乓球" />乒乓球
+      <br />
+      <input type="button" id="checkedAllBtn" value="全 选" />
+      <input type="button" id="checkedNoBtn" value="全不选" />
+      <input type="button" id="checkedRevBtn" value="反 选" />
+      <input type="button" id="sendBtn" value="提 交" />
+    </form>
+  </body>
+</html>
+
+```
+
+##### DOM查询的其他方法
+
+**document.body**
+
+在`document`中有一个属性`body`，它保存的是`body`的引用
+
+
+
+**document.documentElement**
+
+`document.documentElement`保存的是`html`根标签
+
+
+
+**document.getElementsByClassName()**
+
+根据元素的`class`属性值查询一组元素节点对象
+
+`getElementsByClassName()`可以根据`class`属性值获取一组元素节点对象，但是该方法不支持IE8及以下的浏览器
+
+```JavaScript
+var boxs = document.getElementsByClassName("box");
+console.log(boxs); // HTMLCollection(3) [div.box, div.box, div.box]
+console.log(boxs.length); // 3
+console.log(typeof boxs); // object
+```
+
+
+
+**document.querySelector()**
+
+需要一个选择器的字符串作为参数，可以根据一个CSS选择器来查询一个元素节点对象
+
+虽然IE8中没有`getElementsByClassName()`但是可以使用`querySelector()`代替
+
+使用该方法总会返回唯一的一个元素，如果满足条件的元素有多个，那么它只会返回第一个
+
+```JavaScript
+var div = document.querySelector(".box div");
+console.log(div.innerHTML); // I'm first div.
+boxs = document.querySelector(".box");
+console.log(boxs); 
+// <div class="box">
+// 		<div>I'm first div.</div>
+// </div>
+```
+
+
+
+**document.querySelectorAll()**
+
+该方法和`querySelector()`用法类似，不的是它会将符合条件的元素封装到一个数组中返回
+
+即使符合条件的元素只有一个，它也会返回数组
+
+```JavaScript
+boxs = document.querySelectorAll(".box");
+console.log(boxs); // NodeList(3) [div.box, div.box, div.box]
+console.log(boxs.length); //3
+```
+
+
+
+#### 6.DOM增删改
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F04%2FY4M79fLcsUFOHv1.png&sign=a308d3b027f6875f62f664faa041dacad88571b394cfe2f96171b5e13f1f1ef8)
+
+
+
+**document.createElement()**
+
+可以用于创建一个元素节点对象，它需要一个标签名作为参数，将会根据该标签名创建元素节点对象，并将创建好的对象作为返回值返回
+
+
+
+**document.createTextNode()**
+
+可以用来创建一个文本节点对象，它需要一个文本内容作为参数，将会根据该内容创建文本节点，并将新的节点返回
+
+
+
+**appendChild()**
+
+向一个父节点中添加一个新的子节点，用法：`父节点.appendChild(子节点);`
+
+
+
+**insertBefore()**
+
+可以在指定的子节点前插入新的子节点，语法：`父节点.insertBefore(新节点, 旧节点);`
+
+
+
+**replaceChild()**
+
+可以使用指定的子节点替换已有的子节点，语法：`父节点.replaceChild(新节点, 旧节点);`
+
+
+
+**removeChild()**
+
+可以删除一个子节点，语法：`父节点.removeChild(子节点);`、`子节点.parentNode.removeChild(子节点);`
+
+```JavaScript
+// 创建一个"广州"节点,添加到#city下
+var city = document.getElementById("city");
+myClick("btn01",function(){
+    // 创建元素节点
+    var li = document.createElement("li");
+    // 创建文本节点
+    var gz = document.createTextNode("广州");
+    // 将文本节点添加到元素节点中
+    li.appendChild(gz);
+    // 将元素节点添加至#city下
+    city.appendChild(li);
+});
+// 将"广州"节点插入到#bj前面	
+var bj = document.getElementById("bj");
+myClick("btn02",function(){
+    var li = document.createElement("li");
+    var gz = document.createTextNode("广州");
+    li.appendChild(gz);
+    // 将元素节点插入到#bj前面
+    city.insertBefore(li,bj);
+});
+// 使用"广州"节点替换#bj节点
+myClick("btn03",function(){
+    var li = document.createElement("li");
+    var gz = document.createTextNode("广州");
+    li.appendChild(gz);
+    // 将元素节点替换#bj节点
+    city.replaceChild(li,bj);
+});
+// 删除#bj节点
+myClick("btn04",function(){
+    // 将元素节点替换#bj节点
+    // city.removeChild(bj);
+    // 更常用，不需要知道父节点是什么	
+    bj.parentNode.removeChild(bj);
+});
+// 使用innerHTML将"广州"节点添加到#city下
+myClick("btn07",function(){
+    // 使用innerHTML也可以完成DOM的增删改的相关操作
+    // city.innerHTML += "<li>广州</li>";
+    // 不过这种方式会先删除再替换，耗费性能，所以一般我们会两种方式结合使用
+    var li = document.createElement("li");
+    li.innerHTML = "广州";
+    city.appendChild(li);
+});
+```
+
+**增删案例**
+
+```HTML
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      function delRow() {
+        var tr = this.parentNode.parentNode;
+        var name = tr.getElementsByTagName("td")[0].innerHTML;
+        var flag = confirm("确认删除" + name + "?");
+        if (flag) {
+          tr.parentNode.removeChild(tr);
+        }
+        return false;
+      }
+      window.onload = function () {
+        //删除
+        var allA = document.getElementsByTagName("a");
+        for (var i = 0; i < allA.length; i++) {
+          allA[i].onclick = delRow;
+        }
+
+        //添加
+        var addEmpButton = document.getElementById("addEmpButton");
+        addEmpButton.onclick = function () {
+          //获取输入框的文本内容
+          var empName = document.getElementById("empName").value;
+          var email = document.getElementById("email").value;
+          var salary = document.getElementById("salary").value;
+
+          if (!empName || !email || !salary) {
+            alert("有数据为空，无法添加！");
+            return;
+          }
+
+          //创建需要添加的元素节点tr
+          var tr = document.createElement("tr");
+
+          //规定添加到tr中的内容
+          var empNameTd = "<td>" + empName + "</td>";
+          var emailTd = "<td>" + email + "</td>";
+          var salaryTd = "<td>" + salary + "</td>";
+          var aTd = '<td><a href="javascript:;">Delete</a></td>';
+          tr.innerHTML = empNameTd + emailTd + salaryTd + aTd;
+
+          //找到tr元素的父元素
+          var employeeTable = document.getElementById("employeeTable");
+          var tbody = employeeTable.getElementsByTagName("tbody")[0];
+
+          //通过父元素调用appendChild()方法添加到子元素中
+          tbody.appendChild(tr);
+
+          //为新添加的a绑定删除
+          tr.getElementsByTagName("a")[0].onclick = delRow;
+        };
+      };
+    </script>
+  </head>
+  <body>
+    <table id="employeeTable">
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Salary</th>
+        <th>&nbsp;</th>
+      </tr>
+      <tr>
+        <td>Tom</td>
+        <td>tom@tom.com</td>
+        <td>5000</td>
+        <td><a href="deleteEmp?id=001">Delete</a></td>
+      </tr>
+      <tr>
+        <td>Jerry</td>
+        <td>jerry@sohu.com</td>
+        <td>8000</td>
+        <td><a href="deleteEmp?id=002">Delete</a></td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>bob@tom.com</td>
+        <td>10000</td>
+        <td><a href="deleteEmp?id=003">Delete</a></td>
+      </tr>
+    </table>
+
+    <div id="formDiv">
+      <h4>添加新员工</h4>
+      <table>
+        <tr>
+          <td class="word">name:</td>
+          <td class="inp">
+            <input type="text" name="empName" id="empName" />
+          </td>
+        </tr>
+        <tr>
+          <td class="word">email:</td>
+          <td class="inp">
+            <input type="text" name="email" id="email" />
+          </td>
+        </tr>
+        <tr>
+          <td class="word">salary:</td>
+          <td class="inp">
+            <input type="text" name="salary" id="salary" />
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center">
+            <button id="addEmpButton" value="abc">Submit</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
+
+```
+
+#### 7.操作内联样式
+
+##### 修改元素内联样式
+
+通过JS修改元素的内联样式，语法：`元素.style.样式名 = 样式值`
+
+```JavaScript
+box1.style.height = "200px";
+box1.style.width = "200px";
+```
+
+注意：如果CSS的样式名中含有`-`，这种名称在JS中是不合法的，比如`background-color`
+
+需要将这种样式名修改为驼峰命名法，去掉`-`，然后将`-`后的字母大写
+
+```JavaScript
+// box1.style.background-color = "red"; // Uncaught SyntaxError: Invalid left-hand side in assignment
+box1.style.backgroundColor = "red";
+```
+
+在 w3school 手册中，可以查看到每个样式所对应的 JS 代码
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F06%2FbcRK8VFLQ5fSOlj.png&sign=53e38b271191bbccf2de0ed14e0ad14373cd4098710631273a5dd03b03560fd0)
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F06%2F7nUasCtqkbDgwxM.png&sign=ead74e32e6034e79e64057927334527f71729628cf97211a7d0d2f6ab9721d69)
+
+我们通过 style 属性设置的样式都是内联样式，而内联样式有较高的优先级，所以通过JS修改的样式往往会立即显示
+
+
+
+但是如果在样式中写了`!important`，则此时样式会有最高的优先级，即使通过JS也不能覆盖该样式，此时将会导致JS修改样式失效，所以尽量不要为样式添加`!important`
+
+##### 读取元素内联样式
+
+通过 JS 读取元素的内联样式，语法：元素.style.样式名
+
+
+
+通过style属性设置和读取的都是内联样式，无法读取样式表中的样式
+
+```javascript
+alert(box1.style.height); // 
+box1.style.height = "200px";
+alert(box1.style.height); // 200px
+```
+
+##### 读取元素样式
+
+**currentStyle**
+
+获取元素的当前显示的样式，语法：`元素.currentStyle.样式名`
+
+它可以用来读取当前元素正在显示的样式，如果当前元素没有设置该样式，则获取它的默认值
+
+```javascript
+alert(box1.currentStyle.height); // 100px
+box1.style.height = "200px";
+alert(box1.currentStyle.height); // 200px
+```
+
+不过`currentstyle`只有IE浏览器支持，其他的浏览器都不支持。
+
+
+
+**getComputedStyle()**
+
+在其他浏览器中可以使用`getComputedStyle()`，这个方法来获取元素当前的样式
+
+这个方法是`window`的方法，可以直接使用，需要两个参数
+
+- 第一个：要获取样式的元素
+
+- 第二个：可以传递一个伪元素，一般都传`null`
+
+该方法会返回一个对象，对象中封装了当前元素对应的样式
+
+可以通过`对象.样式名`来读取样式，如果获取的样式没有设置，则会获取到真实的值，而不是默认值
+
+比如：没有设置 width，它不会获取到 auto，而是一个长度
+
+但是该方法不支持IE8及以下的浏览器
+
+```javascript
+var obj = getComputedStyle(box1, null);
+alert(obj); // [object CSSStyleDeclaration]
+alert(obj.width); // 200px
+alert(obj.height); // 200px
+alert(obj.backgroundColor); // rgb(255, 0, 0)
+```
+
+
+
+通过`currentStyle`和`getComputedStyle()`读取到的样式都是只读的，不能修改，如果要修改必须通过`style`属性
+
+那么我就只能自己写个函数，来兼容所有浏览器
+
+```javascript
+// 自定义兼容所有浏览器获取元素样式的方法
+function getStyle(obj, name) {
+    // 判断是否有getComputedStyle方法
+    if (window.getComputedStyle) {
+        // 正常浏览器的方式
+        return getComputedStyle(obj, null)[name];
+    } else {
+        // IE的方式
+        return obj.currentStyle[name];
+    }
+}
+```
+
+#### 8.其他样式相关的属性
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F06%2FWC2ob7rpFlPDYZB.png&sign=e8a9af401900121031d6e6c427851f8dfa421944575d3d839d10f995c0c8ce9a)
+
+
+
+**clientwidth、clientHeight**
+
+这两个属性可以获取元素的可见宽度和高度
+
+这些属性都是不带`px`的，返回都是一个数字，可以直接进行计算
+
+会获取元素宽度和高度，包括内容区和内边距
+
+这些属性都是只读的，不能修改（改只有一种方式，就是通过`元素.style.样式 = 样式值`）
+
+```JavaScript
+// #box1 {
+// 	width: 100px;
+// 	height: 100px;
+// 	background-color: red;
+// 	padding: 10px;
+// 	border: 10px solid yellow;
+// }
+alert(box1.clientHeight); // 120
+alert(box1.clientWidth); // 120
+```
+
