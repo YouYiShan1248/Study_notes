@@ -314,7 +314,13 @@ JS中数据类型
 
 - Undefined 未定义
 
-以上这五种类型属于基本数据类型，除此之外全都是对象。
+- BigInt 大整数
+
+- Symbol 符号
+
+以上这七种类型属于基本数据类型，除此之外全都是对象。
+
+对象是JS中的一种复合数据类型，它相当于一个容器，在对象中可以存储各种不同类型数据
 
 ​	基本数据类型都是单一的值`"hello" 123 true`，值和值之间没有任何的联系。
 
@@ -430,6 +436,24 @@ var n = "nihao";
 obj[n] = "你好";
 console.log(obj[n]); // 你好
 ```
+
+
+
+也可以使用符号（symbol）作为属性名，来添加属性
+
+​          获取这种属性时，也必须使用symbol
+
+​         使用symbol添加的属性，通常是那些不希望被外界访问的属性
+
+```javascript
+let mySymbol = Symbol()
+let newSymbol = Symbol()
+// 使用symbol作为属性名
+obj[mySymbol] = "通过symbol添加的属性"
+console.log(obj[mySymbol])
+```
+
+
 
 JS对象的属性值，可以是任意的数据类型，包括对象
 
@@ -2138,7 +2162,7 @@ if(b){
 }
 ```
 
-方法和属性之能添加给对象，不能添加给基本数据类型（按照视频中的解释，是先将data临时转换为了一个包装类对象，进行了属性赋值操作；打印时又临时转换为了一个新的包装类对象，因为两次不是同一个对象，而且该对象刚刚创建，还没有任何属性和方法，所以是获取不到任何值的）
+方法和属性只能添加给对象，不能添加给基本数据类型（先将data临时转换为了一个包装类对象，进行了属性赋值操作；打印时又临时转换为了一个新的包装类对象，因为两次不是同一个对象，而且该对象刚刚创建，还没有任何属性和方法，所以是获取不到任何值的）
 
 ```JavaScript
 var data = 4;
@@ -4755,3 +4779,927 @@ box1.style.backgroundColor = "yellow";
 ```
 
 我们可以先事先定义好一个 class 属性，里面写好我们需要变化的样式
+
+
+
+### 16.自定义工具类
+
+```JavaScript
+/**
+ * 自定义兼容所有浏览器获取元素样式的方法
+ * @param {*} obj 对象
+ * @param {*} name 字符串属性
+ * @returns
+ */
+function getStyle(obj, name) {
+  return window.getComputedStyle
+    ? getComputedStyle(obj, null)[name]
+    : obj.currentStyle[name];
+}
+
+/**
+ * move移动方法
+ * @param {*} obj 要执行动画的对象
+ * @param {String} attr 要执行动画的样式   eg:"left"、"top"、"width"、"height"
+ * @param {*} target 执行动画的目标位置
+ * @param {*} speed 移动的速度
+ * @param {*} callback 回调函数
+ */
+function move(obj, attr, target, speed, callback) {
+  clearInterval(obj.timer);
+  var current = parseInt(getStyle(obj, attr));
+  speed = target < current ? -speed : speed;
+  obj.timer = setInterval(function () {
+    var oldValue = parseInt(getStyle(obj, attr));
+    var newValue = oldValue + speed;
+    newValue =
+      speed > 0
+        ? newValue > target
+          ? target
+          : newValue
+        : newValue < target
+        ? target
+        : newValue;
+    obj.style[attr] = newValue + "px";
+    if (newValue == target) {
+      clearInterval(obj.timer);
+      //动画执行完毕调用callback()
+      callback();
+    }
+  }, 50);
+}
+
+/**
+ * 添加class属性
+ * @param {*} obj 要添加class属性的元素
+ * @param {*} cn 要添加的class值
+ */
+function addClass(obj, cn) {
+  obj.className += " " + cn;
+}
+
+/**
+ * 判断是否含有class属性
+ * @param {*} obj 要判断class属性的元素
+ * @param {*} cn 要判断的class值
+ * @returns
+ */
+function hasClass(obj, cn) {
+  // return obj.className.indexOf(cn) != -1;
+  var reg = new RegExp("\\b" + cn + "\\b");
+  return reg.test(obj.className);
+}
+
+/**
+ * 要移除的class属性
+ * @param {*} obj 要移除class属性的元素
+ * @param {*} cn 要移除的class值
+ */
+function removeClass(obj, cn) {
+  var reg = new RegExp("\\b" + cn + "\\b");
+  obj.className = obj.className.replace(reg, "");
+}
+
+/**
+ * 可以用来切换一个类,如果元素中具有该类，则删除;如果元素中没有该类，则添加
+ * @param {*} obj 要切换class属性的元素
+ * @param {*} cn  要切换的class值
+ */
+function toggleClass(obj, cn) {
+  if (hasClass(obj, cn)) {
+    removeClass(obj, cn);
+  } else {
+    addClass(obj, cn);
+  }
+}
+
+```
+
+**案例：二级导航栏**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="sdmenu.css" />
+    <script src="../tools.js"></script>
+    <script>
+      window.onload = function () {
+        var menuSpan = document.querySelectorAll(".menuSpan");
+        // 定义一个变量，来保存当前打开的菜单
+        var openDiv = menuSpan[0].parentNode;
+        var begin;
+        var end;
+        for (var i = 0; i < menuSpan.length; i++) {
+          // 一级菜单绑定单击响应函数
+          menuSpan[i].onclick = function () {
+            var parentDiv = this.parentNode;
+
+            toggleMenu(parentDiv);
+
+            //判断openDiv和parentDiv是否相同
+            if (openDiv != parentDiv && !hasClass(openDiv, "collapsed")) {
+              // 打开菜单以后，应该关闭之前打开的菜单
+              toggleMenu(openDiv);
+            }
+
+            //修改openDiv为当前打开的菜单
+            openDiv = parentDiv;
+          };
+        }
+      };
+
+      function toggleMenu(obj) {
+        //切换前高度
+        begin = obj.offsetHeight;
+
+        // 切换
+        toggleClass(obj, "collapsed");
+
+        //切换后高度
+        end = obj.offsetHeight;
+
+        //动画执行前内联高度
+        obj.style.height = begin + "px";
+        //执行动画
+        move(obj, "height", end, 10, function () {
+          //动画执行完毕删除内联样式
+          obj.style.height = "";
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="my_menu" class="sdmenu">
+      <div>
+        <span class="menuSpan">在线工具</span>
+        <a href="#">图像优化</a>
+        <a href="#">收藏夹图标生成器</a>
+        <a href="#">邮件</a>
+        <a href="#">htaccess密码</a>
+        <a href="#">梯度图像</a>
+        <a href="#">按钮生成器</a>
+      </div>
+      <div class="collapsed">
+        <span class="menuSpan">支持我们</span>
+        <a href="#">推荐我们</a>
+        <a href="#">链接我们</a>
+        <a href="#">网络资源</a>
+      </div>
+      <div class="collapsed">
+        <span class="menuSpan">合作伙伴</span>
+        <a href="#">JavaScript工具包</a>
+        <a href="#">CSS驱动</a>
+        <a href="#">CodingForums</a>
+        <a href="#">CSS例子</a>
+      </div>
+      <div class="collapsed">
+        <span class="menuSpan">测试电流</span>
+        <a href="#">Current or not</a>
+        <a href="#">Current or not</a>
+        <a href="#">Current or not</a>
+        <a href="#">Current or not</a>
+      </div>
+    </div>
+  </body>
+</html>
+
+```
+
+```css
+@charset "utf-8";
+
+/* sdmenu */
+
+div.sdmenu {
+  width: 150px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding-bottom: 10px;
+  background: url(bottom.gif) no-repeat right bottom;
+  color: #fff;
+}
+
+div.sdmenu div {
+  background: url(title.gif) repeat-x;
+  overflow: hidden;
+}
+
+div.sdmenu div:first-child {
+  background: url(toptitle.gif) no-repeat;
+}
+
+div.sdmenu div.collapsed {
+  height: 25px;
+}
+
+div.sdmenu div span {
+  display: block;
+  height: 15px;
+  line-height: 15px;
+  overflow: hidden;
+  padding: 5px 25px;
+  font-weight: bold;
+  color: white;
+  background: url(expanded.gif) no-repeat 10px center;
+  background-color: #066;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+div.sdmenu div.collapsed span {
+  background-image: url(collapsed.gif);
+}
+
+div.sdmenu div a {
+  padding: 5px 10px;
+  background: #eee;
+  display: block;
+  border-bottom: 1px solid #ddd;
+  color: #066;
+}
+
+div.sdmenu div a.current {
+  background: #ccc;
+}
+
+div.sdmenu div a:hover {
+  background: #066 url(linkarrow.gif) no-repeat right center;
+  color: #fff;
+  text-decoration: none;
+}
+
+```
+
+### 17.JSON
+
+#### JSON简介
+
+![img](https://www.yuque.com/api/filetransfer/images?url=https%3A%2F%2Fi.loli.net%2F2021%2F08%2F15%2F7vAu4g1pPcOBzNt.png&sign=5e14854dbf6aab0be610cf806788223836b69304f2a4b2ec0cb52fe135b588b6)
+
+`JSON` 和 JS 对象的格式一样，只不过 `JSON`字符串中的属性名必须加双引号，其他的和JS语法一致
+
+
+
+**JSON分类**
+
+- `对象{}`
+
+- `数组[]`
+
+```JavaScript
+var obj = {
+    "name": "孙悟空",
+    "age": 1000,
+    "gender": "男"
+};
+console.log(typeof obj); // object
+var jsonObjStr = '{"name": "孙悟空","age": 1000,"gender": "男"}';
+console.log(typeof jsonObjStr); // string
+var jsonArrStr = '[1,2,3,"hello", true]';
+console.log(typeof jsonArrStr); // string
+```
+
+
+
+**JSON中允许的值**
+
+- 字符串
+
+- 数值
+
+- 布尔值
+
+- `null`
+
+- 对象
+
+- 数组
+
+```JavaScript
+// json对象可以包含json数组
+var obj1 = '{"arr":[1,2,3]}';
+// json数组可以包含json对象
+var obj2 = '[{"name": "孙悟空","age": 1000,"gender": "男"},{"name": "孙悟空","age": 1000,"gender": "男"}]';
+```
+
+
+
+#### JSON和JS间转换
+
+在 JS 中，为我们提供了一个工具类，就叫`JSON`
+
+这个对象可以帮助我们将一个`JSON`转换为 JS 对象，也可以将一个 JS 对象转换`JSON`
+
+
+
+**JSON.parse()**
+
+可以将`JSON`字符串转换为 JS 中的对象
+
+需要一个`JSON`字符串作为参数，会将该字符串转换为 JS 对象并返回
+
+```JavaScript
+var jsonObj = JSON.parse(jsonObjStr);
+console.log(typeof jsonObj); // object
+console.log(jsonObj); // { name: "孙悟空", age: 1000, gender: "男" }
+console.log(jsonObj.name); // 孙悟空
+console.log(jsonObj.age); // 1000
+console.log(jsonObj.gender); // 男
+
+var jsonArr = JSON.parse(jsonArrStr);
+console.log(typeof jsonArr); // object
+console.log(jsonArr); // (5) [ 1, 2, 3, "hello", true ]
+console.log(jsonArr[0]); // 1
+console.log(jsonArr[3]); // hello
+console.log(jsonArr[4]); // true
+```
+
+
+
+**JSON.stringify()**
+
+可以将一个 JS 对象转换为`JSON`字符串
+
+需要一个 JS 对象作为参数，会返回一个`JSON`字符串
+
+```JavaScript
+var obj2 = {
+    name: "猪八戒",
+    age: 2000,
+    gender: "男"
+};
+var obj2JSONStr = JSON.stringify(obj2);
+console.log(typeof obj2JSONStr); // string
+console.log(obj2JSONStr); // {"name":"猪八戒","age":2000,"gender":"男"}
+```
+
+`JSON`对象在 IE7 及以下的浏览器中不支持，所以在这些浏览器中调用时会报错
+
+
+
+
+
+## JavaScript高级进阶
+
+### 高级基础
+
+#### 1.数据类型的分类和判断
+
+##### 基本(值)类型
+
+- Number —– 任意数值 ——– typeof
+- String —– 任意字符串 —— typeof
+- Boolean —- true/false —– typeof
+- undefined — undefined —– typeof/===
+- null ——– null ———- ===
+
+##### 对象(引用)类型
+
+- Object –*任意对象*— typeof/instanceof
+- Array —*特别的对象类型(下标/内部数据有序)*— instanceof
+- Function –*特别的对象类型(可执行)*– typeo
+
+#### 数据类型判断
+
+- typeof:
+
+  typeof返回值是数据类型的字符串表达
+
+  例如：
+
+  ```JavaScript
+  var a = 3
+  console.log(typeof a==='number');//输出true
+  ```
+
+可以区别: 数值, 字符串, 布尔值, undefined, function
+
+不能区别: null与对象, 一般对象与数组
+
+typeof判断null为object
+
+- instanceof
+
+  专门用来判断对象数据的类型: Object, Array与Function
+
+- ===
+
+  可以判断: undefined和null
+
+  简单来说，===只能判断出只有一个值的数据类型
+
+#### 数据,变量, 内存的理解
+
+​	这里有一个技术问题有歧义，根据最新的说法，我们的栈内存存储的变量名和值，无论是否是基本类型，我们栈内存所存储的值都存储的是堆内存的地址，也就是说栈内存不存储数据，只存储了地址。而所有的数据都是在堆内存中定义了新的内存空间。
+
+**赋值与内存的问题**
+
+问题: var a = xxx, a内存中到底保存的是什么?
+
+```JavaScript
+var a = 3 // 保存3
+   a = function () {
+   }//保存地址值
+   var b = 'abc'
+   a = b // b保存的数据'abc'
+   b = []
+   a = b // b保存的地址值
+```
+
+xxx是一个基本数据，保存的就是这个数据
+
+xxx是一个对象，保存的是对象的地址值
+
+xxx是一个变量，保存的是xxx的内存内容（可能是基本数据，也可能是地址值)
+
+**关于引用变量赋值问题**
+
+- n个引用变量指向同一个对象, 通过一个引用变量修改对象内部数据, 其他所有引用变量也看得见
+
+```JavaScript
+var obj1 = { name: 'Tom' }
+var obj2 = obj1
+obj2.age = 12
+console.log(obj1.age);//12
+
+function fn(obj) {
+  obj.name = 'Bob'
+}
+fn(obj1)
+console.log(obj2.name);//Bob
+```
+
+- 2个引用变量指向同一个对象,让一个引用变量指向另一个对象, 另一个引用变量还是指向原来的对象
+
+```JavaScript
+ var a = { age: 12 }
+    var b = a
+    a = { name: 'Jack', age: 13 }
+    console.log(b.age, a.name, a.age);//12 Jack 13
+/*
+ 这里记住一点，是将实参a赋值给形参obj，即 obj=a，此时他们指向同一对象。执行obj={age:15}，obj指向发生改变，而a指向未发生改变
+*/
+    function fn2(obj) {
+      obj = { age: 15 }
+    }
+    fn2(a)
+    console.log(a.age);//13
+```
+
+**在js调用函数时传递变量参数时, 是值传递还是引用传递**
+
+对这个问题可以有着两种理解，第一种是理解为两个都是值传递，只是这个值可以是基本数据，也可以是地址数据。第二种则是把传递的地址值看作是引用传递，不过一般来说都当做是值传递。
+
+```JavaScript
+var a = 3
+function fn(a) {
+  a = a + 1
+}
+fn(a)// 传的不是a，而是3这个值
+console.log(a);// 3
+/* 
+执行到:fn(a);先读到a是3，把a的值传给形参a，形参a去加1，输出为4。
+实参a还是实参a，所以最后输出a仍然是3。这里是基本值传递。
+*/
+function fn2(obj) {
+  console.log(obj.name);
+}
+var obj = { name: 'Tom' }
+fn2(obj)
+/*
+执行到:fn2(obj);把obj中的内容（不是把{name:‘tom’}传递给形参obj，
+是把obj的地址值传给形参obj，只是地址值指向的是 {name:‘tom’}）传递给形参obj。
+这里是地址值传递。
+*/
+
+```
+
+**JS引擎如何管理内存**
+
+​	内存生命周期
+
+- 分配需要的内存空间，得到使用权
+- 存储数据，可以反复操作
+- 释放当前的内存空间
+
+​	释放内存
+
+为执行函数分配的栈空间内存（局部变量）: 函数执行完自动释放
+
+存储对象的堆空间内存（对象）: 当内存没有引用指向时, 对象成为垃圾对象, 垃圾回收器后面就会回收释放此内存
+
+```javascript
+var a = 3
+var obj = {}// 执行到这里，一共开辟了3个内存空间
+obj = null //  obj指向的对象内存空间被释放，obj不释放，手动释放
+
+function fn() {
+  var b = {} // 只有函数被执行的时候才会开辟内存空间，即 fn()调用
+}
+fn()
+/*
+fn()执行完，b被自动释放，b所指向的对象在后面的某个时刻由垃圾回收器回收
+*/
+```
+
+
+
+#### 2.对象的理解和使用
+
+##### **什么是对象**
+
+- 代表现实中的某个事物, 是该事物在编程中的抽象
+- 多个数据的集合体(封装体)
+- 用于保存多个数据的容器
+
+**为什么要用对象?**
+
+便于对多个数据进行统一管理
+
+##### 对象的组成
+
+**属性**
+
+- 代表现实事物的状态数据
+- 由属性名和属性值组成
+- 属性名都是字符串类型, 属性值是任意类型
+
+**属性的分类**
+
+- 一般属性 : 属性值不是function 描述对象的状态
+- 方法 : 属性值为function的属性 描述对象的行为
+
+**特别的对象**
+
+- 数组: 属性名是0,1,2,3之类的索引
+- 函数: 可以执行的
+
+##### 如何操作内部属性(方法)
+
+- obj.属性名
+- obj[‘属性名’] 一般不用，但通用
+
+**什么时候必须使用[‘属性名’]的方式?**
+
+- 属性名不是合法的标识名（包含特殊字符：- 空格等）
+- 属性名不确定
+
+```JavaScript
+// 创建对象
+   var p = {}
+   /*情形一: 属性名不是合法的标识名*/
+   /*需求: 添加一个属性: content-type: text/json */
+   p.content-type = 'text/json' //不正确
+   p['content-type'] = 'text/json'
+   /*情形二: 属性名不确定*/
+   var prop = 'xxx'  // 我们想让这个值（xxx）做属性名
+   var value = 123
+   p.prop = value  //不正确  这么写的属性名是prop
+   p[prop] = value
+   console.log(p['content-type'], p[prop])
+```
+
+
+
+#### 3.函数的理解与使用
+
+##### **函数定义**
+
+- 函数声明
+- 表达式
+
+```JavaScript
+fn1()// 输出fn1
+fn2()// 输出undefined
+//函数声明
+function fn1() {
+  console.log('fn1');
+}
+//表达式
+var fn2 = function () {
+  console.log('fn2');
+}
+```
+
+区别：js中的**变量提升**
+
+- 函数声明可以在声明前调用
+- 表达式不能在声明前调用，输出为undefined
+
+##### 如何调用(执行)函数?
+
+- test()：直接调用
+- new test()：new调用
+- obj.test()：对象调用
+- test.call/apply(obj)：临时让test成为obj的方法进行调用
+
+```JavaScript
+  var obj = {}
+  function test2() {
+    this.xxx = 'atguigu'
+  }
+  test2.call(obj) // 可以让一个函数成为指定任意对象的方法进行调用
+//test2.apply(obj)
+  console.log(obj.xxx) // atguigu
+```
+
+这里我的想法是，call和apply改变了函数test2中的this指向，将函数test2中的this指向从window改变，指向call和apply传入的对象（后面有讲到this的指向问题）
+
+**函数也是对象**
+
+- instanceof Object===true
+- 函数有属性: prototype
+- 函数有方法: call()/apply()
+- 可以添加新的属性/方法
+
+**函数的3种不同角色**
+
+- 一般函数 : 直接调用
+- 构造函数 : 通过new调用
+- 对象 : 通过.调用内部的属性/方法
+
+
+
+##### 回调函数的理解
+
+- 什么函数才是回调函数?
+  - 你定义的
+  - 你没有调用
+  - 但它最终执行了(在一定条件下或某个时刻)
+- 常用的回调函数
+  - dom事件回调函数
+  - 定时器回调函数
+  - ajax请求回调函数
+  - 生命周期回调函数
+
+
+
+##### 匿名函数自调用
+
+```JavaScript
+(function (i) {
+   var a = 4
+   function fn() {
+     console.log('fn ', i+a)// 7
+   }
+   fn()
+ })(3)
+```
+
+- 专业术语为: IIFE (Immediately Invoked Function Expression) 立即调用函数表达式
+
+作用
+
+- 隐藏内部实现
+- 不污染外部命名空间
+- 编码js模块
+
+**this是什么?**
+
+- 任何函数本质上都是通过某个对象来调用的，没有直接指定就是window
+- 所有函数内部都有一个变量this
+- 它的值是调用函数的当前对象
+
+**如何确定this的值?**
+
+- test()：window
+- obj.test()：obj
+- new test()：新建的对象
+- test.call(obj)：obj
+
+本质上任何函数在执行时都是通过某个对象调用的
+
+```JavaScript
+function Person(color) {
+      console.log(this)
+      this.color = color;
+      this.getColor = function () {
+        console.log(this)
+        return this.color;
+      };
+      this.setColor = function (color) {
+        console.log(this)
+        this.color = color;
+      };
+    }
+
+    Person("red"); //this是谁? window
+
+    var p = new Person("yello"); //this是谁? p
+
+    p.getColor(); //this是谁? p
+
+    var obj = {};
+    p.setColor.call(obj, "black"); //this是谁? obj
+
+    var test = p.setColor;
+    test(); //this是谁? window
+
+    function fun1() {
+      function fun2() {
+        console.log(this);
+      }
+
+      fun2(); //this是谁? window
+    }
+    fun1();
+```
+
+### 函数进阶高级
+
+#### 原型与原型链
+
+- `prototype` : 显式原型属性，它默认指向一个Object空对象(即称为: 原型对象)
+- 原型对象中有一个属性constructor, 它指向函数对象
+
+**给原型对象添加属性(一般都是方法)**
+
+作用: 函数的所有实例对象自动拥有原型中的属性(方法)
+
+```JavaScript
+// 每个函数都有一个prototype属性, 它默认指向一个对象(即称为: 原型对象)
+  console.log(Date.prototype, typeof Date.prototype)
+
+  function fun() { }
+
+  console.log(fun.prototype);// 默认指向一个Object空对象（没有我们的属性）
+
+  //原型对象中有一个属性constructor, 它指向函数对象
+  console.log(Date.prototype.constructor === Date)// true
+  console.log(fun.prototype.constructor === fun)// true
+
+  //给原型对象添加属性(一般都是方法)
+  fun.prototype.test = function () {
+    console.log('test()');
+  }
+  //创建一个实例
+  var f = new fun()
+  f.test() // 可以执行 
+```
+
+**所有实例对象都有一个特别的属性**
+
+`__proto__` : 隐式原型属性
+
+#### 显式原型与隐式原型的关系
+
+- 函数的prototype属性: 在定义函数时自动添加的, 默认值是一个空Object对象
+- 对象的`__proto__`属性: 创建对象时自动添加的, 默认值为构造函数的prototype属性值
+- 程序员能直接操作显式原型, 但不能直接操作隐式原型(ES6之前)
+- 原型对象即为当前实例对象的父对象
+- *对象的隐式原型的值为其对应构造函数的显式原型的值*
+
+```javascript
+function Fn() {  // 内部语句：this.prototype={}
+}
+// 每个函数function都有一个prototype，即显式原型 
+console.log(Fn.prototype)
+// 每个实例对象都有一个__proto__，可称为隐式原型
+var fn = new Fn()  // 内部语句：this.__proto__ = Fn.prototype
+console.log(fn.__proto__)
+// 对象的隐式原型的值为其对应构造函数的显式原型的值
+console.log(Fn.prototype === fn.__proto__)// true
+//给原型添加方法
+Fn.prototype.test = function () {
+  console.log('test()')
+}
+fn.test()
+```
+
+![](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2F%E6%98%BE%E5%BC%8F%E5%8E%9F%E5%9E%8B%E4%B8%8E%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B.png)
+
+#### 原型链
+
+##### 基础理解
+
+- 所有的实例对象都有`__proto__`属性, 它指向的就是原型对象
+- 这样通过`__proto__`属性就形成了一个链的结构—->原型链
+- 当查找对象内部的属性/方法时, js引擎自动沿着这个原型链查找
+- 当给对象属性赋值时不会使用原型链, 而只是在当前对象中进行操作
+
+![](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2F%E5%8E%9F%E5%9E%8B%E9%93%BE%E5%88%86%E6%9E%90.png)
+
+访问一个对象的属性时
+
+- 先在自身属性中查找，找到返回
+- 如果没有, 再沿着__proto__这条链向上查找, 找到返回
+- 如果最终（Object原型对象）没找到, 返回undefined
+- 别名: 隐式原型链
+- 作用: 查找对象的属性(方法)
+
+**构造函数/原型/实体对象的关系(图解)**
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fb7d5b9991ba8dfc683584ece66e7c28341652fc06b531bab428f4be745fe4030.png)
+
+实例对象的隐式原型指向构造函数的显示原型
+
+**构造函数/原型/实体对象的关系2(图解)**
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Ff88baefc063b83fa603371cefd50a8ca438c8b9e3d7559e91ab5f44e1ad1bdee.png)
+
+函数的显示原型指向的对象默认是Object实例对象（但Object不满足）
+
+```JavaScript
+console.log(Fn.prototype instanceof Object);// true
+console.log(Object.prototype instanceof Object);// false
+console.log(Function.prototype instanceof Object);// true
+```
+
+函数实际上是Function的实例对象（包括Function本身），所以函数既有隐式原型也有显示原型
+
+所有函数的隐式原型都指向Function的显示原型
+
+```javascript
+function fun1() { }
+function fun2() { }
+console.log(fun1.__proto__ === Function.prototype);// true
+console.log(fun2.__proto__ === Function.prototype);// true
+console.log(fun2.__proto__ === fun1.__proto__);// true
+```
+
+Function本身的隐式原型也指向本身的显示原型
+
+```javascript
+console.log(Function.prototype === Function.__proto__);// true
+```
+
+Object的原型对象是原型链的尽头
+
+```javascript
+console.log(Object.prototype.__proto__)// null
+```
+
+##### 原型链属性问题
+
+- 读取对象的属性值时: 会自动到原型链中查找
+- 设置对象的属性值时: 不会查找原型链, 如果当前对象中没有此属性, 直接添加此属性并设置其值
+- 方法一般定义在原型中, 属性一般通过构造函数定义在对象本身上
+
+```javascript
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+Person.prototype.setName = function (name) {
+  this.name = name;
+}
+Person.prototype.sex = '男';
+
+var p1 = new Person('Tom', 12)
+p1.setName('Jack')
+console.log(p1.name, p1.age, p1.sex)// Jack 12 男
+p1.sex = '女'
+console.log(p1.name, p1.age, p1.sex)// Jack 12 女
+
+var p2 = new Person('Bob', 23)
+console.log(p2.name, p2.age, p2.sex)// Bob 23 男
+```
+
+##### instanceof
+
+表达式: A instanceof B
+
+如果B函数的显式原型对象在A对象的原型链上, 返回true, 否则返回false
+
+Function是通过new自己产生的实例
+
+**案例一**
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fd40d210e94738d75f0891a70c864d01684b411f5c8c57cffee6bf5a8b96f8936.png)
+
+
+
+如果B函数的显式原型对象在A对象的原型链上, 返回true, 否则返回false
+
+这里很简单可以看出，Foo构造函数的显示原型与实例f1，f2的隐式原型指向同一个对象，所以instanceof判断为true
+
+```JavaScript
+function Foo() { }
+var f1 = new Foo();
+console.log(f1 instanceof Foo);// true
+console.log(f1 instanceof Object);// true
+```
+
+**案例二**
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fc7b6ea12284706f1e4ee4a4168e5248597b228a884288508b54cc879ccccc134.png)
+
+```JavaScript
+//Object函数是function的实例，所以有隐式原型
+console.log(Object instanceof Function)// true
+console.log(Object instanceof Object)// true
+console.log(Function instanceof Object)// true
+//Function是通过new自己产生的实例
+console.log(Function instanceof Function)// true
+function Foo() { }
+console.log(Object instanceof Foo);// false
+```
+
+**面试题一**
+
