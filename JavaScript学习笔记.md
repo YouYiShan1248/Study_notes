@@ -5513,7 +5513,7 @@ function Person(color) {
 
 ### 函数进阶高级
 
-#### 原型与原型链
+#### 1.原型与原型链
 
 - `prototype` : 显式原型属性，它默认指向一个Object空对象(即称为: 原型对象)
 - 原型对象中有一个属性constructor, 它指向函数对象
@@ -5547,7 +5547,7 @@ function Person(color) {
 
 `__proto__` : 隐式原型属性
 
-#### 显式原型与隐式原型的关系
+#### 2.显式原型与隐式原型的关系
 
 - 函数的prototype属性: 在定义函数时自动添加的, 默认值是一个空Object对象
 - 对象的`__proto__`属性: 创建对象时自动添加的, 默认值为构造函数的prototype属性值
@@ -5574,7 +5574,9 @@ fn.test()
 
 ![](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2F%E6%98%BE%E5%BC%8F%E5%8E%9F%E5%9E%8B%E4%B8%8E%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B.png)
 
-#### 原型链
+#### 3.原型链
+
+![](https://img2018.cnblogs.com/blog/1153103/201902/1153103-20190228152227115-297624496.png)
 
 ##### 基础理解
 
@@ -5701,5 +5703,1671 @@ function Foo() { }
 console.log(Object instanceof Foo);// false
 ```
 
-**面试题一**
+#### 4.执行上下文与执行上下文栈
+
+- 执行上下文: 由js引擎自动创建的对象, 包含对应作用域中的所有变量属性
+- 执行上下文栈: 用来管理产生的多个执行上下文
+
+##### 变量提升与函数提升
+
+- 变量提升: 在变量定义语句之前, 就可以访问到这个变量(undefined)（使用var关键字定义，es6的let，const不会变量提升，现在开发很少使用var关键字，变量一般用let，对象、数组、函数使用const）
+- 函数提升: 在函数定义语句之前, 就可以执行该函数
+- 先有变量提升, 再有函数提升
+
+```JavaScript
+var a = 4
+function fn() {
+  console.log(a)
+  var a = 5
+}
+fn()// undefined
+console.log(a1) //可以访问, 但值是undefined
+a2() // 可以直接调用
+a3()// 此处遵循变量提升，不能调用
+var a1 = 3
+function a2() {
+  console.log('a2()')
+}
+var a3 = function () {
+  console.log('a3()');
+}
+```
+
+##### 执行上下文理解
+
+**代码分类(位置)**
+
+- 全局代码
+- 函数代码
+
+**全局执行上下文**
+
+在执行全局代码前将window确定为全局执行上下文
+
+对全局数据进行预处理
+
+1. var定义的全局变量==>undefined, 添加为window的属性
+2. function声明的全局函数==>赋值(fun), 添加为window的方法
+3. this==>赋值(window)
+4. 开始执行全局代码
+
+
+
+```JavaScript
+console.log(a1, window.a1);//undefined undefined
+a2()//a2()
+window.a2()//a2()
+console.log(this);
+var a1 = 3
+function a2() {
+  console.log('a2()');
+}
+```
+
+**函数执行上下文**
+
+在调用函数, 准备执行函数体之前, 创建对应的函数执行上下文对象
+
+对局部数据进行预处理
+
+1. 形参变量==>赋值(实参)==>添加为执行上下文的属性
+2. arguments==>赋值(实参列表), 添加为执行上下文的属性
+3. var定义的局部变量==>undefined, 添加为执行上下文的属性
+4. function声明的函数 ==>赋值(fun), 添加为执行上下文的方法
+5. this==>赋值(调用函数的对象)
+6. 开始执行函数体代码
+
+```JavaScript
+function fn(a1) {
+  console.log(a1);// 2
+  console.log(a2);// undefined
+  a3()// a3()
+  console.log(this);// window
+  console.log(arguments);// 伪数组(2,3)
+  var a2 = 3
+  function a3() {
+    console.log('a3()');
+  }   
+}
+fn(2, 3)
+```
+
+
+
+**分类**
+
+全局: window
+函数: 对程序员来说是透明的
+
+**生命周期**
+
+全局 : 准备执行全局代码前产生, 当页面刷新/关闭页面时死亡
+函数 : 调用函数时产生, 函数执行完时死亡
+
+**执行上下文创建和初始化的过程**
+
+**全局**
+
+-  在全局代码执行前最先创建一个全局执行上下文(window)
+-  收集一些全局变量, 并初始化
+-  将这些变量设置为window的属性
+
+**函数**
+
+-  在调用函数时, 在执行函数体之前先创建一个函数执行上下文
+-  收集一些局部变量, 并初始化
+-  将这些变量设置为执行上下文的属性
+
+##### 执行上下文栈理解
+
+- 在全局代码执行前, JS引擎就会创建一个栈来存储管理所有的执行上下文对象
+- 在全局执行上下文(window)确定后, 将其添加到栈中(压栈)
+- 在函数执行上下文创建后, 将其添加到栈中(压栈)
+- 在当前函数执行完后,将栈顶的对象移除(出栈)
+- 当所有的代码执行完后, 栈中只剩下window
+
+
+
+```JavaScript
+                          //1. 进入全局执行上下文
+var a = 10
+var bar = function (x) {
+  var b = 5
+  foo(x + b)              //3. 进入foo执行上下文
+}
+var foo = function (y) {
+  var c = 5
+  console.log(a + c + y)
+}
+bar(10)                    //2. 进入bar函数执行上下文
+```
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fef498657d7f84e2ac6360105f1859d6fde755b09a977c678bd171cfe47124b9d.png)
+
+
+
+#### 5.作用域与作用域链
+
+主要是概念类的东西，也很简单，就两个一起讲
+
+##### 理解
+
+- 作用域: 一块代码区域, 在编码时就确定了, 不会再变化
+
+  **分类**
+
+  全局作用域
+  函数作用域
+  js没有块作用域(在ES6之前
+
+
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fa69eab7eea49fe0056cac0686f9fe688e3abf11325898ccf4f82cb9cbf39a71b.png)
+
+- 作用域链: 多个嵌套的作用域形成的由内向外的结构, 用于查找变量
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fe64299a51ed99ca2c202b526ffb5c40e59d375f1259cf5ead5a495fe49783473.png)
+
+
+
+**作用**
+
+- 作用域: 隔离变量, 可以在不同作用域定义同名的变量不冲突
+- 作用域链: 查找变量
+
+##### 区别作用域与执行上下文
+
+![img](https://cdn-1311041824.cos.ap-guangzhou.myqcloud.com/images%2FpageImage%2Fjs%E9%AB%98%E7%BA%A7%2Fa16294ff2316a8d81eb42c314b4bf8fe087d27ad0b107e637870f28f51d0d4dc.png)
+
+
+
+ *这里的全局上下文环境中的d应该是b*
+
+- **区别1**
+- 全局作用域之外，每个函数都会创建自己的作用域，作用域在函数定义时就已经确定了。而不是在函数调用时
+- 全局执行上下文环境是在全局作用域确定之后, js代码马上执行之前创建
+- 函数执行上下文环境是在调用函数时, 函数体代码执行之前创建
+- **区别2**
+- 作用域是静态的, 只要函数定义好了就一直存在, 且不会再变化
+- 上下文环境是动态的, 调用函数时创建, 函数调用结束时上下文环境就会自动被释放
+- **联系**
+- 上下文环境(对象)是从属于所在的作用域
+- 全局上下文环境==>全局作用域
+- 函数上下文环境==>对应的函数使用域
+
+#### 6.闭包
+
+##### 循环遍历添加监听
+
+```markdown
+  <button>测试1</button>
+  <button>测试2</button>
+  <button>测试3</button>
+  <!--
+需求: 点击某个按钮, 提示"点击的是第n个按钮"
+-->
+  <script type="text/javascript">
+    var btns = document.getElementsByTagName('button')
+
+    //遍历加监听
+    // btns是一个伪数组，btns.length需要不断计算，可以提前保存，加快执行效率
+    for (var i = 0, length = btns.length; i < length; i++) {
+        /*
+        解决方案一
+        这里其实可以将var i=0 改成let i=0 就可以解决,但let是es6语法，我们js高级只涉及es5
+        */
+      var btn = btns[i]
+      btn.onclick = function () {
+        alert('第' + (i + 1) + '个按钮')// 无论哪个按钮都输出“第4个按钮”
+      }
+    }
+  </script>
+
+```
+
+```javascript
+//解决方案二
+for (var i = 0, length = btns.length; i < length; i++) {
+  var btn = btns[i]
+  btn.index = i// 解决办法  保存下标
+  btn.onclick = function () {
+    alert('第' + (this.index + 1) + '个按钮')
+  }
+}
+```
+
+```JavaScript
+//解决方案三 利用闭包解决
+for (var i = 0, length = btns.length; i < length; i++) {
+	(function (x) {
+	var btn = btns[x];
+	btn.onclick = function () {
+		alert("第" + (x + 1) + "个按钮");
+	};
+	})(i);
+}
+```
+
+**闭包的产生**
+
+当一个嵌套的内部(子)函数引用了嵌套的外部(父)函数的变量(函数)时, 就产生了闭包
+
+**闭包产生的条件**
+
+- 函数嵌套
+- 内部函数引用了外部函数（执行）的数据(变量/函数)
+
+```JavaScript
+function fn1() {
+  var a = 3
+  function fn2() {
+    console.log(a)// fn2引用了fn1的a，因此形成了闭包
+  }
+    fn2()// 目前2022年，必须调用内部函数才能在chrome中看到闭包
+}
+fn1()
+```
+
+##### 常见闭包
+
+**将函数作为另一个函数的返回值**
+
+```JavaScript
+function fn1() {
+  var a = 2
+  function fn2() {
+    a++
+    console.log(a);
+  }
+  return fn2
+}
+var f = fn1()
+f()// 3
+f()// 4
+//f相当于fn2的实例
+```
+
+**将函数作为实参传递给另一个函数调用**
+
+```JavaScript
+function showDelay(msg, time) {
+     setTimeout(function () {
+       alert(msg)
+     }, time)
+   }
+   showDelay('Hello', 2000)
+```
+
+##### 闭包的作用
+
+- 使用函数内部的变量在函数执行完后, 仍然存活在内存中(延长了局部变量的生命周期)
+- 让函数外部可以操作(读写)到函数内部的数据(变量/函数)
+
+```JavaScript
+function fun1() {
+  var a = 3;//此处闭包已经产生
+  function fun2() {
+    a++;            //引用外部函数的变量--->产生闭包
+    console.log(a);
+  }
+  return fun2;
+}
+var f = fun1();  //由于f引用着内部的函数-->内部函数以及闭包都没有成为垃圾对象
+f();   //间接操作了函数内部的局部变量
+f();
+f=null //此时闭包对象死亡
+```
+
+**闭包的生命周期**
+
+产生: 在嵌套内部函数定义执行完时就产生了(不是在调用)
+
+死亡: 在嵌套的内部函数成为垃圾对象时
+
+##### 闭包的应用
+
+**JS模块**
+
+- 具有特定功能的js文件
+- 将所有的数据和功能都封装在一个函数内部(私有的)
+- 只向外暴露一个包信n个方法的对象或函数
+- 模块的使用者, 只需要通过模块暴露的对象调用方法来实现对应的功能
+
+
+
+**写法一**
+
+```markdown
+<script type="text/javascript" src="05_coolModule.js"></script>
+ <script type="text/javascript">
+   var module = myModule()
+   module.doSomething()
+   module.doOtherthing()
+ </script>
+
+```
+
+```javascript
+function myModule() {
+  var msg = 'My atguigu'
+  //操作数据的函数
+  function doSomething() {
+    console.log('doSomething ' + msg.toUpperCase());
+  }
+  function doOtherthing() {
+    console.log('doOtherthing ' + msg.toLowerCase());
+  }
+  //向外暴露
+  return {
+    doSomething,
+    doOtherthing
+  }
+}
+```
+
+
+
+**写法二**
+
+```JavaScript
+<script type="text/javascript" src="05_coolModule2.js"></script>
+<script type="text/javascript">
+  myModule2.doSomething()
+  myModule2.doOtherthing()
+</script>
+```
+
+```JavaScript
+(function (window) {
+  var msg = 'My atguigu'
+  //操作数据的函数
+  function doSomething() {
+    console.log('doSomething ' + msg.toUpperCase());
+  }
+  function doOtherthing() {
+    console.log('doOtherthing ' + msg.toLowerCase());
+  }
+  //向外暴露
+  window.myModule2 = {
+    doSomething,
+    doOtherthing
+  }
+})(window)//方便代码打包压缩
+```
+
+##### 闭包的缺点及解决
+
+**缺点:**
+
+- 函数执行完后, 函数内的局部变量没有释放, 占用内存时间会变长
+- 容易造成内存泄露
+
+**解决:**
+
+- 能不用闭包就不用
+- 及时释放
+
+```JavaScript
+function fn1() {
+  var arr = new Array(100000)
+  function fn2() {
+    console.log(arr.length)
+  }
+  return fn2
+}
+var f = fn1()
+f()
+f = null //让内部函数成为垃圾对象-->回收闭包
+```
+
+
+
+##### 内存溢出与内存泄漏
+
+**内存溢出**
+
+- 一种程序运行出现的错误
+- 当程序运行需要的内存超过了剩余的内存时, 就出抛出内存溢出的错误
+
+**内存泄露**
+
+- 占用的内存没有及时释放
+- 内存泄露积累多了就容易导致内存溢出
+- 常见的内存泄露:
+  - 意外的全局变量
+  - 没有及时清理的计时器或回调函数
+  - 闭包
+
+
+
+```JavaScript
+<script type="text/javascript">
+ // 1. 内存溢出
+ var obj = {}
+ for (var i = 0; i < 10000; i++) {
+   obj[i] = new Array(10000000)
+   console.log('-----')
+ }
+
+ // 2. 内存泄露
+   // 意外的全局变量
+ function fn() {
+   a = new Array(10000000)  //不使用var let const去承接
+   console.log(a)
+ }
+ fn()
+
+  // 没有及时清理的计时器或回调函数
+ var intervalId = setInterval(function () { //启动循环定时器后不清理
+   console.log('----')
+ }, 1000)
+
+ // clearInterval(intervalId)
+
+   // 闭包
+ function fn1() {
+   var a = 4
+   function fn2() {
+     console.log(++a)
+   }
+   return fn2
+ }
+ var f = fn1()
+ f()
+ // f = null
+
+</script>
+```
+
+### 面向对象高级
+
+#### 1.对象创建模式
+
+**Object构造函数模式**
+
+- 套路: 先创建空Object对象, 再动态添加属性/方法
+- 适用场景: 起始时不确定对象内部数据
+- 问题: 语句太多
+
+```JavaScript
+/*一个人: name:"Tom", age: 12*/
+// 先创建空Object对象
+ var p = new Object()
+ p = {} //此时内部数据是不确定的
+ // 再动态添加属性/方法
+ p.name = 'Tom'
+ p.age = 12
+ p.setName = function (name) {
+   this.name = name
+ }
+
+ //测试
+ console.log(p.name, p.age)
+ p.setName('Bob')
+ console.log(p.name, p.age)
+```
+
+**对象字面量模式**
+
+- 套路: 使用{}创建对象, 同时指定属性/方法
+- 适用场景: 起始时对象内部数据是确定的
+- 问题: 如果创建多个对象, 有重复代码
+
+```JavaScript
+//对象字面量模式
+var p = {
+   name: 'Tom',
+   age: 12,
+   setName: function (name) {
+     this.name = name
+   }
+ }
+ //测试
+ console.log(p.name, p.age)
+ p.setName('JACK')
+ console.log(p.name, p.age)
+
+ var p2 = {  //如果创建多个对象代码很重复
+   name: 'Bob',
+   age: 13,
+   setName: function (name) {
+     this.name = name
+   }
+ }
+```
+
+**工厂模式**
+
+- 套路: 通过工厂函数动态创建对象并返回
+- 适用场景: 需要创建多个对象
+- 问题: `对象没有一个具体的类型`, 都是Object类型
+
+```JavaScript
+//返回一个对象的函数===>工厂函数
+function createPerson(name, age) { 
+ var obj = {
+   name: name,
+   age: age,
+   setName: function (name) {
+     this.name = name
+   }
+ }
+ return obj
+}
+
+// 创建2个人
+var p1 = createPerson('Tom', 12)
+var p2 = createPerson('Bob', 13)
+
+// p1/p2是Object类型
+
+function createStudent(name, price) {
+ var obj = {
+   name: name,
+   price: price
+ }
+ return obj
+}
+var s = createStudent('张三', 12000)
+// s也是Object
+```
+
+
+
+**自定义构造函数模式**
+
+- 套路: 自定义构造函数, 通过new创建对象
+- 适用场景: 需要创建多个`类型确定`的对象,与上方工厂模式有所对比
+- 问题: 每个对象都有相同的数据, 浪费内存
+
+```JavaScript
+//定义类型
+function Person(name, age) {
+ this.name = name
+ this.age = age
+ this.setName = function (name) {
+   this.name = name
+ }
+}
+var p1 = new Person('Tom', 12)
+p1.setName('Jack')
+console.log(p1.name, p1.age)
+console.log(p1 instanceof Person)
+
+function Student (name, price) {
+ this.name = name
+ this.price = price
+}
+var s = new Student('Bob', 13000)
+console.log(s instanceof Student)
+
+var p2 = new Person('JACK', 23)
+console.log(p1, p2)
+```
+
+**构造函数+原型的组合模式**
+
+- 套路: 自定义构造函数, 属性在函数中初始化, 方法添加到原型上
+- 适用场景: 需要`创建多个类型确定`的对象
+- 放在原型上可以节省空间(只需要加载一遍方法)
+
+```JavaScript
+//在构造函数中只初始化一般函数
+function Person(name, age) { 
+ this.name = name
+ this.age = age
+}
+Person.prototype.setName = function (name) {
+ this.name = name
+}
+
+var p1 = new Person('Tom', 23)
+var p2 = new Person('Jack', 24)
+console.log(p1, p2)
+```
+
+#### 2.继承模式
+
+**原型链继承**
+
+```
+ 1. 套路
+    - 定义父类型构造函数
+    - 给父类型的原型添加方法
+    - 定义子类型的构造函数
+    - 创建父类型的对象赋值给子类型的原型
+    - `将子类型原型的构造属性设置为子类型`-->此处有疑惑的可以看本笔记[函数高级部分的1、原型与原型链](#1、原型与原型链)
+    - 给子类型原型添加方法
+    - 创建子类型的对象: 可以调用父类型的方法
+ 2. 关键
+    - `子类型的原型为父类型的一个实例对象`
+```
+
+```JavaScript
+//父类型
+function Supper() {
+this.supProp = '父亲的原型链'
+}
+//给父类型的原型上增加一个[showSupperProp]方法,打印自身subProp
+Supper.prototype.showSupperProp = function () {
+console.log(this.supProp)
+}
+
+//子类型
+function Sub() {
+this.subProp = '儿子的原型链'
+}
+
+// 子类型的原型为父类型的一个实例对象
+Sub.prototype = new Supper()
+// 让子类型的原型的constructor指向子类型
+// 如果不加,其构造函数找的[`new Supper()`]时从顶层Object继承来的构造函数,指向[`Supper()`]
+Sub.prototype.constructor = Sub
+//给子类型的原型上增加一个[showSubProp]方法,打印自身subProp
+Sub.prototype.showSubProp = function () {
+console.log(this.subProp)
+}
+
+var sub = new Sub()
+
+sub.showSupperProp() //父亲的原型链
+sub.showSubProp() //儿子的原型链
+console.log(sub)  
+/**
+Sub {subProp: "儿子的原型链"}
+subProp: "儿子的原型链"
+__proto__: Supper
+constructor: ƒ Sub()
+showSubProp: ƒ ()
+supProp: "父亲的原型链"
+__proto__: Object
+*/
+```
+
+
+
+`注意`:此图中没有体现[`constructor构造函数 `],会在下方构造函数补充处指出
+
+![image-20210728101320606](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/image-20210728101320606.png)
+
+
+
+**构造函数补充**
+
+对于代码中[`Sub.prototype.constructor = Sub`]是否有疑惑?
+
+如果不加,其构造函数找的[`new Supper()`]是从顶层Object继承来的构造函数,指向[`Supper()`],虽然如果你不加这句话,大体上使用是不受影响的,但是你有一个属性指向是错误的,如果在大型项目中万一万一哪里再调用到了呢?
+
+这里可以补充一下constructor 的概念：
+
+- `constructor 我们称为构造函数，因为它指回构造函数本身`
+- 其作用是让某个构造函数产生的 所有实例对象（比如f） 能够找到他的构造函数（比如Fun），用法就是f.constructor
+
+此时实例对象里没有constructor 这个属性，于是沿着原型链往上找到Fun.prototype 里的constructor，并指向Fun 函数本身
+
+- constructor本就存在于原型中,指向构造函数,成为子对象后，如果该原型链中的constructor在自身没有而是在父原型中找到,所以指向父类的构造函数
+
+由于这里的继承是直接改了构造函数的prototype 的指向，所以在 sub的原型链中，Sub.prototype 没有constructor 属性，反而是看到了一个super 实例
+
+这就让sub 实例的constructor 无法使用了。为了他还能用，就在那个super 实例中手动加了一个constructor 属性，且指向Sub 函数看到了一个super 实例
+
+
+
+**组合继承**
+
+原型链+借用构造函数的组合继承
+
+1. 利用原型链实现对父类型对象的方法继承
+2. 利用super()借用父类型构建函数初始化相同属性
+
+```JavaScript
+function Person(name, age) {
+ this.name = name
+ this.age = age
+}
+Person.prototype.setName = function (name) {
+ this.name = name
+}
+
+function Student(name, age, price) {
+ Person.call(this, name, age)  // 为了得到属性
+ this.price = price
+}
+Student.prototype = new Person() // 为了能看到父类型的方法
+Student.prototype.constructor = Student //修正constructor属性
+Student.prototype.setPrice = function (price) {
+ this.price = price
+}
+
+var s = new Student('Tom', 24, 15000)
+s.setName('Bob')
+s.setPrice(16000)
+console.log(s.name, s.age, s.price)
+```
+
+### 线程机制与事件机制
+
+#### 1.线程与进程
+
+![image-20210728115630974](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/image-20210728115630974.png)
+
+1. 应用程序必须运行在某个进程的某个线程上
+2. 一个进程中至少有一个运行的线程:主线程 -->进程启动后自动创建
+3. 一个进程中也可以同时运行多个线程:此时我们会说这个程序是多线程运行的
+4. 多个进程之间的数据是不能直接共享的 -->内存相互独立(隔离)
+5. `线程池(thread pool)`:保存多个线程对象的容器,实现线程对象的反复利用
+
+**单线程与多线程之间的比较**
+
+多线程:
+
+- 优点:能有效提升CPU的利用率
+- 缺点
+- 创建多线程开销
+- 线程间切换开销
+- 死锁与状态同步问题
+
+单线程:
+
+- 优点:顺序编程简单易懂
+- 缺点:效率低
+
+
+
+ **JS是单线程还是多线程?**
+
+JS是单线程运行的 , 但使用H5中的 Web Workers可以多线程运行
+
+> - 只能由一个线程去操作DOM界面
+
+**浏览器运行是单线程还是多线程?**
+
+> 都是多线程运行的
+
+#### 2.浏览器内核
+
+> 支撑浏览器运行的最核心的程序
+
+**不同浏览器的内核**
+
+> - Chrome, Safari : webkit
+> - firefox : Gecko
+> - IE : Trident
+> - 360,搜狗等国内浏览器: Trident + webkit
+
+**内核由什么模块组成?**
+
+> 主线程
+>
+> 1. js引擎模块 : 负责js程序的编译与运行
+> 2. html,css文档解析模块 : 负责页面文本的解析(拆解)
+> 3. dom/css模块 : 负责dom/css在内存中的相关处理
+> 4. 布局和渲染模块 : 负责页面的布局和效果的绘制
+> 5. 布局和渲染模块 : 负责页面的布局和效果的绘制
+>
+> 分线程
+>
+> - 定时器模块 : 负责定时器的管理
+> - 网络请求模块 : 负责服务器请求(常规/Ajax)
+> - 事件响应模块 : 负责事件的管理
+
+![image-20210728141032723](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/image-20210728141032723.png)
+
+
+
+#### 3.证明JavaScript执行的是单线程
+
+- `setTimeout()`的回调函数是在主线程执行的
+- 定时器回调函数只有在运行栈中的代码全部执行完后才有可能执行
+
+```javascript
+// 如何证明JS执行是单线程的
+setTimeout(function () { //4. 在将[timeout 1111]弹窗关闭后,再等一秒 执行此处
+   console.log('timeout 2222')
+   alert('22222222')
+ }, 2000)
+ setTimeout(function () { //3. 过了一秒后 打印 timeout 1111并弹窗,此处如果不将弹窗关闭,不会继续执行上方222
+   console.log('timeout 1111')
+   alert('1111111')
+ }, 1000)
+ setTimeout(function () { //2. 然后打印timeout() 00000
+   console.log('timeout() 00000')
+ }, 0)
+ function fn() { //1. fn()
+   console.log('fn()')
+ }
+ fn()
+//----------------------
+ console.log('alert()之前')
+ alert('------') //暂停当前主线程的执行, 同时暂停计时, 点击确定后, 恢复程序执行和计时
+ console.log('alert()之后')
+```
+
+流程结果:
+
+1. 先打印了[`fn()`],然后马上就打印了[`timeout() 00000`]
+2. 过了一秒后 打印 timeout 1111并弹窗,此处如果不将弹窗关闭,不会继续执行上方222
+3. 在将[timeout 1111]弹窗关闭后,`再等一秒` 执行此处
+
+- 问:为何明明写的是2秒,却关闭上一个弹窗再过一秒就执行?
+- 解:并不是关闭后再计算的,而是一起计算的,alert只是暂停了主线程执行
+
+#### 4.JS引擎执行代码的基本流程与代码分类
+
+> 代码分类:
+>
+> - 初始化代码（同步代码）
+> - 回调代码（异步代码）
+>
+> js引擎执行代码的基本流程
+>
+> 1.先执行初始化代码: 包含一些特别的代码 回调函数(异步执行)
+>
+> - 设置定时器
+> - 绑定事件监听
+> - 发送ajax请求
+>
+> 2.后面在某个时刻才会执行回调代码
+
+
+
+#### 5.事件循环`eventloop`
+
+##### 执行栈
+
+当javascript代码执行的时候会将不同的变量存于内存中的不同位置：`堆（heap）`和`栈（stack）`中来加以区分。其中，堆里存放着一些对象。而栈中则存放着一些基础类型变量以及对象的指针。 `但是我们这里说的执行栈和上面这个栈的意义却有些不同`。
+
+**执行栈:**
+
+> 当我们调用一个方法的时候，js会生成一个与这个方法对应的执行环境（context），又叫`执行上下文`。这个执行环境中存在着这个方法的私有作用域、上层作用域的指向、方法的参数，这个作用域中定义的变量以及这个作用域的this对象。 而当一系列方法被依次调用的时候，因为js是单线程的，同一时间只能执行一个方法，于是这些方法被排队在一个单独的地方。这个地方被称为执行栈。
+
+当一个脚本第一次执行的时候，js引擎会解析这段代码，并将其中的同步代码按照执行顺序加入执行栈中，然后从头开始执行。如果当前执行的是一个方法，那么js会向执行栈中添加这个方法的执行环境，然后进入这个执行环境继续执行其中的代码。`当这个执行环境中的代码 执行完毕并返回结果后，js会退出这个执行环境并把这个执行环境销毁，回到上一个方法的执行环境`。这个过程反复进行，直到执行栈中的代码全部执行完毕。
+
+##### 事件队列`Task Queue`
+
+JS引擎遇到一个异步事件后并不会一直等待其返回结果，而是会将这个事件挂起，继续执行执行栈中的其他任务,当一个异步事件返回结果后，js会将这个事件加入与当前执行栈不同的另一个队列，我们称之为`事件队列`。
+
+> 被放入事件队列不会立刻执行其回调，而是`等待当前执行栈中的所有任务都执行完毕， 主线程处于闲置状态时，主线程会去查找事件队列是否有任务`。如果有，那么主线程会从中取出排在第一位的事件，并把这个事件对应的回调放入执行栈中，然后执行其中的同步代码...，如此反复，`这样就形成了一个无限的循环。这就是这个过程被称为“事件循环（Event Loop）”的原因。`
+
+
+
+![image-20210729163242840](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/image-20210729163242840.png)
+
+
+
+图中的`stack`表示我们所说的执行栈，`web apis`则是代表一些异步事件，而`callback queue`即事件队列。
+
+以上的事件循环过程是一个宏观的表述，实际上因为异步任务之间并不相同，因此他们的执行优先级也有区别。不同的异步任务被分为两类：微任务`micro task`和宏任务`macro task`。
+
+
+
+##### 宏任务与微任务
+
+宏任务`macro task`与微任务`micro task`
+
+JS中用来存储待执行回调函数的队列包含2个不同特定的列队
+
+- `宏队列`:用来保存待执行的宏任务(回调),比如:`定时器`回调/ajax回调/dom事件回调
+- `微队列`:用来保存待执行的微任务(回调),比如:`Promise`的回调/muntation回调
+
+JS执行时会区别这2个队列:
+
+- JS执行引擎首先必须执行所有的`初始化同步任务`代码
+- 每次准备取出第一个`宏任务执行前`,都要将所有的`微任务`一个一个取出来执行
+
+​	在一个事件循环中，异步事件返回结果后会被放到一个任务队列中。然而，根据这个异步事件的类型，这个事件实际上会被对应的宏任务队列或者微任务队列中去。并且在当前执行栈为空的时候，主线程会 查看微任务队列是否有事件存在。如果不存在，那么再去宏任务队列中取出一个事件并把对应的回到加入当前执行栈；如果存在，则会依次执行队列中事件对应的回调，直到微任务队列为空，然后去宏任务队列中取出最前面的一个事件，把对应的回调加入当前执行栈...如此反复，进入循环。
+
+​	*当前执行栈执行完毕时会立刻先处理所有微任务队列中的事件，然后再去宏任务队列中取出一个事件。同一次事件循环中，微任务永远在宏任务之前执行*
+
+![Promise系统学习_宏任务微任务原理图](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/Promise%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0_%E5%AE%8F%E4%BB%BB%E5%8A%A1%E5%BE%AE%E4%BB%BB%E5%8A%A1%E5%8E%9F%E7%90%86%E5%9B%BE.png)
+
+
+
+```javascript
+setTimeout(() => { 
+      console.log('timeout callback1（）')//立即放入宏队列
+      Promise.resolve(3).then(
+        value => { 
+          console.log('Promise onResolved3()', value)//当这个宏任务执行后 立马放入微队列,所以这个微任务执行完后下个宏任务才能执行 
+        }
+      )
+    }, 0)
+
+    setTimeout(() => { 
+      console.log('timeout callback2（）') //立即放入宏队列,
+    }, 0)
+
+    Promise.resolve(1).then(
+      value => { 
+        console.log('Promise onResolved1()', value)//立即放入微队列
+        setTimeout(() => {
+          console.log('timeout callback3（）', value) //立即放入宏任务
+        }, 0)
+      }
+    )
+
+    Promise.resolve(2).then(
+      value => { 
+        console.log('Promise onResolved2()', value)//立即放入微队列
+      }
+    )
+console.log('同步代码') //同步代码立即执行
+```
+
+```javascript
+ '同步代码',
+  'Promise onResolved1()',
+  'Promise onResolved2()',
+  'timeout callback1（）',
+  'Promise onResolved3()',
+  'timeout callback2（）',
+  'timeout callback3（）'
+```
+
+##### node环境下的事件循环机制
+
+[先简单记录，今后补充](https://gitee.com/hongjilin/hongs-study-notes/blob/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.md#%E2%85%B1-%E6%B5%8F%E8%A7%88%E5%99%A8%E7%8E%AF%E5%A2%83%E4%B8%8Bjs%E5%BC%95%E6%93%8E%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF%E6%9C%BA%E5%88%B6)
+
+ **与浏览器环境有何不同?**
+
+> 在node中，事件循环表现出的状态与浏览器中大致相同。不同的是node中有一套自己的模型。node中事件循环的实现是依靠的libuv引擎。我们知道node选择chrome v8引擎作为js解释器，v8引擎将js代码分析后去调用对应的node api，而这些api最后则由libuv引擎驱动，执行对应的任务，并把不同的事件放在不同的队列中等待主线程执行。 `因此实际上node中的事件循环存在于libuv引擎中`。
+
+ **事件循环模型**
+
+> 下面是一个libuv引擎中的事件循环的模型:
+>
+> ```
+> //libuv引擎中的事件循环的模型
+>    ┌───────────────────────┐
+> ┌─>│        timers         │
+> │  └──────────┬────────────┘
+> │  ┌──────────┴────────────┐
+> │  │     I/O callbacks     │
+> │  └──────────┬────────────┘
+> │  ┌──────────┴────────────┐
+> │  │     idle, prepare     │
+> │  └──────────┬────────────┘      ┌───────────────┐
+> │  ┌──────────┴────────────┐      │   incoming:   │
+> │  │         poll          │<──connections───     │
+> │  └──────────┬────────────┘      │   data, etc.  │
+> │  ┌──────────┴────────────┐      └───────────────┘
+> │  │        check          │
+> │  └──────────┬────────────┘
+> │  ┌──────────┴────────────┐
+> └──┤    close callbacks    │
+>    └───────────────────────┘
+>    //模型中的每一个方块代表事件循环的一个阶段
+> ```
+
+**事件循环各阶段详解**
+
+> 从上面这个模型中，我们可以大致分析出node中的事件循环的顺序：
+>
+> > 外部输入数据-->轮询阶段(poll)-->检查阶段(check)-->关闭事件回调阶段(close callback)-->定时器检测阶段(timer)-->I/O事件回调阶段(I/O callbacks)-->闲置阶段(idle, prepare)-->轮询阶段...
+>
+> 这些阶段大致的功能如下：
+>
+> - timers(定时器检测阶段): 这个阶段执行定时器队列中的回调如 `setTimeout()` 和 `setInterval()`。
+> - I/O callbacks(I/O事件回调阶段): 这个阶段执行几乎所有的回调。但是不包括close事件，定时器和`setImmediate()`的回调。
+> - idle, prepare: 这个阶段仅在内部使用，可以不必理会。
+> - poll(轮询阶段): 等待新的I/O事件，node在一些特殊情况下会阻塞在这里。
+> - check(检查阶段): `setImmediate()`的回调会在这个阶段执行。
+> - close callbacks(关闭事件回调阶段): 例如`socket.on('close', ...)`这种close事件的回调。
+
+#### 6.Web Workers
+
+##### 概念
+
+H5规范提供了js分线程的实现, 取名为: Web Workers
+
+相关API
+
+- Worker: 构造函数, 加载分线程执行的js文件
+- Worker.prototype.onmessage: 用于接收另一个线程的回调函数
+- Worker.prototype.postMessage: 向另一个线程发送消息
+
+不足
+
+- worker内代码不能操作DOM(更新UI)
+- 不能跨域加载JS
+- 不是每个浏览器都支持这个新特性
+
+##### 使用
+
+**主线程**
+
+1. 创建一个Worker对象
+2. 绑定[主线程接收分线程返回的数据]方法
+3. 主线程向分线程发送数据,然后等待接受数据
+4. 接收到分线程回馈的数据,将数据进行处理(如弹窗)
+
+```html
+<body>
+<input type="text" placeholder="数值" id="number">
+<button id="btn">计算</button>
+<script type="text/javascript">
+ var input = document.getElementById('number')
+ document.getElementById('btn').onclick = function () {
+   var number = input.value
+
+   //创建一个Worker对象
+   var worker = new Worker('worker.js')
+   // 绑定接收消息的监听
+   worker.onmessage = function (event) { //此处变成回调代码,会在初始化工作完成后才会进行
+     console.log('主线程接收分线程返回的数据: '+event.data)
+     alert(event.data)
+   }
+
+   // 向分线程发送消息
+   worker.postMessage(number)
+   console.log('主线程向分线程发送数据: '+number)
+ }
+ // console.log(this) // window
+
+</script>
+</body>
+```
+
+**分线程**
+
+将计算放置分线程中
+
+`注意`:alert(result) alert是window的方法, 在分线程不能调用,`分线程中的全局对象不再是window`, 所以在分线程中不可能更新界面
+
+```JavaScript
+//worker.js
+function fibonacci(n) {
+ return n<=2 ? 1 : fibonacci(n-1) + fibonacci(n-2)  //递归调用
+}
+
+console.log(this)
+this.onmessage = function (event) {
+ var number = event.data
+ console.log('分线程接收到主线程发送的数据: '+number)
+ //计算
+ var result = fibonacci(number)
+ postMessage(result)
+ console.log('分线程向主线程返回数据: '+result)
+ // alert(result)  alert是window的方法, 在分线程不能调用
+ // 分线程中的全局对象不再是window, 所以在分线程中不可能更新界面
+}
+```
+
+##### 流程原理
+
+![image-20210729173545339](https://gitee.com/hongjilin/hongs-study-notes/raw/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HTML+CSS+JS%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/JavaScript%E7%AC%94%E8%AE%B0/A_JavaScript%E8%BF%9B%E9%98%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%AD%E7%9A%84%E5%9B%BE%E7%89%87/image-20210729173545339.png)
+
+## ES6+
+
+### 关键字
+
+#### let关键字
+
+**使用let关键字声明的变量具有块级作用域**
+
+```javascript
+/* -------
+在一个大括号中 使用let关键字声明的变量才具有块级作用域 var关键字是不具备这个特点的
+--------- */
+
+if (true) {
+ let num = 100;
+ var abc = 200;
+}
+console.log(abc);	// 200
+console.log(num)	//	error
+```
+
+**防止循环变量变成全局变量**
+
+```javascript
+for (let i = 0; i < 2; i++) {}
+console.log(i);	//	error
+```
+
+**使用let关键字声明的变量没有变量提升**
+
+```javascript
+ console.log(a);	//	error
+ let a = 100;
+```
+
+**使用let关键字声明的变量具有暂时性死区特性**
+
+```javascript
+var num = 10
+if (true) {
+	console.log(num);	//	error
+	let num = 20;
+}
+```
+
+#### const关键字
+
+**使用const关键字声明的常量具有块级作用域**
+
+```JavaScript
+if (true) {
+ 	const a = 10;
+ 	if (true) {
+ 		const a = 20;
+ 		console.log(a);	// 20
+ 	}
+ 	console.log(a);	// 10
+ }
+ console.log(a);	// error
+```
+
+**使用const关键字声明的常量必须赋初始值**
+
+```javascript
+const pi;	// error
+const PI = 3.14;	// 3.14
+```
+
+**常量声明后值不可更改** 
+
+```javascript
+const PI = 3.14;
+PI = 100;	// error
+
+const ary = [100, 200];
+ary[0] = 123;
+console.log(ary); 	// [123,200]
+ary = [1, 2]
+console.log(ary);	// error
+```
+
+
+
+### 解构
+
+#### 数组解构
+
+数组解构允许我们按照一一对应的关系从数组中提取值 然后将值赋值给变量
+
+```javascript
+let ary = [1,2,3];
+let [a, b, c, d, e] = ary;
+console.log(a)	// 1
+console.log(b)	// 2
+console.log(c)	// 3
+console.log(d)	// undefined
+console.log(e)	// undefined
+```
+
+#### 对象解构
+
+对象解构允许我们使用变量的名字匹配对象的属性 匹配成功 将对象属性的值赋值给变量
+
+```javascript
+let person = {name: 'lisi', age: 30, sex: '男'};
+let { name, age, sex } = person;
+console.log(name)	// lisi
+console.log(age)	// 30
+console.log(sex)	// 男
+//将name属性赋值给myName变量
+let {name: myName} = person;
+console.log(myName)		// lisi
+```
+
+
+
+### 箭头函数
+
+箭头函数是用来简化函数定义语法的
+
+```JavaScript
+const fn = () => {
+	console.log(123)
+}
+fn();
+```
+
+
+
+```JavaScript
+// 在箭头函数中 如果函数体中只有一句代码 并且代码的执行结果就是函数的返回值 函数体大括号可以省略
+const sum = (n1, n2) => n1 + n2;	 
+const result = sum(10, 20);
+console.log(result)
+		
+// 在箭头函数中 如果形参只有一个 形参外侧的小括号也是可以省略的
+const fn = v => {
+ 	alert(v);
+}
+fn(20)
+```
+
+**箭头函数不绑定this**
+
+箭头函数不绑定this 箭头函数没有自己的this关键字 如果在箭头函数中使用this ，this关键字将指向箭头函数定义位置中的this
+
+```javascript
+function fn () {
+	console.log(this);	// {name: 'zhangsan'}
+	return () => {
+		console.log(this)	// {name: 'zhangsan'}
+	}
+}
+
+const obj = {name: 'zhangsan'};
+const resFn = fn.call(obj); //使用call方法改变this的指向
+resFn();
+```
+
+```javascript
+var age = 100;
+var obj = {
+	age: 20,
+	say: () => {
+		alert(this.age)	// 100
+	}
+}
+obj.say();
+```
+
+### 剩余参数
+
+`...args`是单个参数则表示将剩余参数以数组的形式存入args数组变量中
+
+```javascript
+const sum = (...args) => {
+ 	let total = 0;
+ 	args.forEach(item => total += item);
+ 	return total;
+};
+
+console.log(sum(10, 20));	// 30
+console.log(sum(10, 20, 30));	// 60
+
+//剩余参数与解构配合使用
+let ary1 = ['张三' , '李四', '王五'];
+let [s1, ...s2] = ary1;
+console.log(s1)	// 张三
+console.log(s2)	// [李四，王五]
+```
+
+
+
+### 扩展运算符
+
+`...ary`如果是一个数组对象，则将会把数组拆分成以逗号分隔的参数序列
+
+```
+		// 扩展运算符可以将数组拆分成以逗号分隔的参数序列
+let ary = ["a", "b", "c"];
+...ary // "a", "b", "c"
+console.log(...ary)	// a b c
+console.log("a", "b", "c")	// a b c
+		
+		// 扩展运算符应用于数组合并
+let ary1 = [1, 2, 3];
+let ary2 = [4, 5, 6];
+let ary3 = [...ary1, ...ary2];	// 使用...ary1,...ary2将两个数组拆分成序列然后重新组装
+console.log(ary3)	// [1,2,3,4,5,6]
+
+		// 合并数组的第二种方法
+let ary1 = [1, 2, 3];
+let ary2 = [4, 5, 6];
+
+ary1.push(...ary2);
+console.log(ary1)	// [1,2,3,4,5,6]
+		
+		// 利用扩展运算符将伪数组转换为真正的数组
+var oDivs = document.getElementsByTagName('div');
+console.log(oDivs)
+var ary = [...oDivs];
+ary.push('a');
+console.log(ary);
+```
+
+
+
+### Symbol
+
+它一种新的数据类型，表示独一无二的值，类似于字符串的数据类型。
+
+- 它的值是唯一的，用来解决命名冲突的问题。
+- 它的值不能于其他数据进行运算。
+- 它定义的对象属性不能使用for…in 循环遍历，但是可以使用Reflect.ownKeys来获取对象的所有键名。
+
+```JavaScript
+let game={
+    //假如有很多代码很多变量名
+}
+
+//声明一个对象
+let data={
+    //Symbol保证了up和down的属性名是独一无二的，
+    // 所以添加进去也不怕也不怕有属性名冲突
+    up:Symbol(),//up属性的数据类型为Symbol
+    down:Symbol()
+};
+
+//第一种添加方式
+//把这个Symbol添加到game方法中
+game[data.up]=function(){
+    console.log('我会飞'); //安全的向这个对象中添加了两个方法
+}
+game[data.down]=function(){
+    console.log('我会爬');
+}
+console.log(game);
+
+
+//////////////////////////////////////
+//第二种添加方式
+let play={
+    name='run',
+    [Symbol('say')]:function(){
+        console.log('我会说话');
+    },
+    [Symbol('sleep')]:function(){
+        console.log('我会睡觉');
+    }
+}
+console.log(paly);
+```
+
+
+
+
+
+### 迭代器
+
+迭代器(lterator)是一种接口，为各种不同的数据结构提供统一的访问机制。任何数据结构只要部署lterator接口，就可以完成遍历操作。
+
+**具备iterator接口的数据类型**
+
+- Array
+- Argunments
+- Set
+- Map
+- String
+- TypedArray
+- NodeList
+
+这个接口就是对象里面的一个属性，属性的名字叫Symbol.iterator，也可以自己对结构进行布置iterator接口。
+
+**工作原理**
+
+- 先创建一个指针对象，指向当前数据结构的起始位置
+- 第一次调用对象的next方法，指针自动指向数据结构的第一个成员
+- 接下来不断调用next方法，指针一直往后移动，直到指向最后一个成员
+- 每次调用next方法就会返回一个包含value和done属性（是否完成）的对象
+
+```JavaScript
+const xiyou=['AA','BB','CC','DD'];
+// for(let v of xiyou){
+//     console.log(v)  // 'AA','BB','CC','DD'  //for in保存的是键名，for of保存的是键值
+// }
+let iterator = xiyou[Symbol.iterator]();
+console.log(iterator.next()); //{{value:'唐僧'，done:false}}
+console.log(iterator.next()); //{{value:'孙悟空'，done:false}}
+
+```
+
+**自定义迭代器**
+
+```JavaScript
+//声明一个对象
+const data={
+    name:'zzl',
+    lis:[
+        'wxl',
+        'll',
+        'hll'
+    ],
+    //自己给某些结构加上iterator接口
+    [Symbol.iterator](){
+        //索引变量
+        let index=0;
+        let _this=this;
+        return {//返回一个指针对象，即创建一个指针对象
+            next:function(){ //创建对象的next方法
+                // 返回一个包含value和done属性（是否完成）的对象
+                if(index<_this.lis.length){
+                    const result= {value:_this.lis[index],done:false};
+                    index++;
+                    return result;
+                }else{                   
+                    return {value:undefined,done:true};
+                }
+            }
+        };
+    }
+}
+//自定义遍历这个对象
+for(let v of data){
+    console.log(v);
+}
+console.log('--------------------')
+console.log(data);
+```
+
+### 生成器
+
+生成器就是一个特殊的函数，是异步编程新的解决方案。
+
+```JavaScript
+//	生成器函数写法
+function * fun(){	//函数名和function中间有一个 * 
+    console.log('zzl');
+}
+let a=fun();
+// console.log(a);//输出一个迭代器对象（有next方法）
+a.next();//输出zzl
+```
+
+```JavaScript
+function * fun(){
+    console.log('zzl');
+    console.log('wxl');
+}
+let a=fun();
+// console.log(a);//输出一个迭代器对象（有next方法）
+a.next();//输出zzl wxl 即全部输出
+```
+
+```JavaScript
+function * fun(){
+    console.log('zzl');
+    yield '我要暂停'	//yield是函数代码的分隔符
+    console.log('wxl');
+}
+let a=fun();
+// console.log(a);//输出一个迭代器对象（有next方法）
+a.next();//输出zzl 我要暂停
+```
+
+```JavaScript
+function * fun(){
+    console.log('zzl');
+    yield '我要暂停'
+    console.log('wxl');
+}
+let a=fun();
+// console.log(a);//输出一个迭代器对象（有next方法）
+a.next();//输出zzl
+a.next();//输出wxl
+```
+
+#### 生成器的参数传递
+
+```JavaScript
+function * fun(arg){
+    console.log(arg);//输出aaa
+    let one=yield 111;
+    console.log(one);//输出bbb
+    let two=yield 222;
+    console.log(two);//输出ccc
+    let three=yield 333;
+    console.log(three);//输出ddd
+}
+let a=fun('aaa');
+console.log(a.next());//第一次调用next
+//next方法可以传入实参
+//第二次调用next的实参将作为第一个yield的整体返回结果
+console.log(a.next('bbb'))//输出{value: 222, done: false}
+console.log(a.next('ccc'))
+console.log(a.next('ddd'))
+```
+
+#### 异步编程
+
+**回调地狱**
+
+需求：1s后控制台输出111 然后 2s后控制台输出222 然后 3s后控制台输出333
+
+```JavaScript
+//	回调地狱
+// setTimeout(() => {
+//     console.log(111);
+//     setTimeout(() => {
+//         console.log(222);
+//         setTimeout(() => {
+//             console.log(333);
+//         }, 3000);
+//     }, 2000);
+// }, 1000);
+
+//	用生成器函数方式解决 回调地狱 问题
+function one(){
+    setTimeout(()=>{
+        console.log(111);
+        a.next();//定时器运行完调用下一个，实现了异步编程
+    },1000)
+}
+function two(){
+    setTimeout(()=>{
+        console.log(222);
+        a.next();
+    },2000)
+}
+function three(){
+    setTimeout(()=>{
+        console.log(333);
+        a.next();
+    },3000)
+}
+function *fun(){
+    yield one();
+    yield two();
+    yield three();
+}
+//调用生成器函数
+let a=fun();
+a.next();
+```
+
+**模拟异步获取数据**
+
+```JavaScript
+function one(){
+    setTimeout(()=>{
+        let data='用户数据';
+        a.next(data);//第二次调用next的实参将作为第一个yield的整体返回结果
+    },1000)
+}
+function two(){
+    setTimeout(()=>{
+        let data='订单数据';
+        a.next(data);
+    },1000)
+}
+function three(){
+    setTimeout(()=>{
+        let data='商品数据';
+        a.next(data);
+    },1000)
+}
+function *fun(){
+    let users= yield one(); //用户数据 作为第一个yield的整体返回结果
+    console.log(users);		//	用户数据
+    let orders= yield two();
+    console.log(orders);	//	订单数据
+    let goods= yield three();
+    console.log(goods);		//	商品数据
+}
+//调用生成器函数
+let a=fun();
+a.next();
+```
+
+### Promise
+
+它是es6中异步编程的新的解决方案。相当于一个构造函数。
+
+#### 基本特性
+
+```javascript
+function fun(){
+    return new Promise((resolve,reject)=>{
+        //如果成功就调用resolve
+        let data='数据库中的数据';
+        resolve(data); //promise状态变为成功
+        //如果失败就调用reject
+        let err='数据库读取失败';
+        reject(err);//promise状态变为失败
+    })
+}
+var promise = fun()
+promise.then(//调用then方法
+    function(success){//promise状态变为成功后then会调用第一个回调函数
+        console.log(success);
+    },function(err){//promise状态变为失败后then会调用第二个回调函数
+        console.log(err);
+    }
+)
+```
+
+#### Promise.then（）
+
+```JavaScript
+<script>
+    const p =new Promise((resolve, reject) =>{
+        setTimeout(()=>{
+            resolve('用户数据');
+        })
+    });
+
+//then（）函数返回的实际也是一个Promise对象
+//1.当回调后，返回的是非Promise类型的属性时，状态为fulfilled，then（）函数的返回值为对象的成功值，如reutnr 123，返回的Promise对象值为123，如果没有返回值，是undefined
+
+//2.当回调后，返回的是Promise类型的对象时，then（）函数的返回值为这个Promise对象的状态值
+
+//3.当回调后，如果抛出的异常，则then（）函数的返回值状态也是rejected
+    let result = p.then(value => {
+        console.log(value)
+        // return 123;
+        // return new Promise((resolve, reject) => {
+        //     resolve('ok')
+        // })
+        throw 123
+    },reason => {
+        console.log(reason)
+    })
+    console.log(result);
+</script>
+
+```
+
+#### Promise.catch（）
+
+```JavaScript
+//catch（）函数只有一个回调函数，意味着如果Promise对象状态为失败就会调用catch（）方法并且调用回调函数
+<script>
+    const p = new Promise((resolve, reject) => {
+        setTimeout(()=>{
+            reject('出错啦')
+        },1000)
+    })
+
+    p.catch(reason => {
+        console.log(reason)
+    })
+</script>
+
+```
 
