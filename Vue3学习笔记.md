@@ -463,4 +463,116 @@ export function toRef<T extends object, K extends keyof T>(
 }
 ```
 
-在toRef函数里，要传入一个对象和对象的一个key，如果是ref 对象直接返回 否则 调用 `ObjectRefImpl` 创建一个类ref 对象
+​	在toRef函数里，要传入一个对象和对象的一个key，如果是ref 对象直接返回 否则 调用 `ObjectRefImpl` 创建一个类ref 对象
+
+
+
+```typescript
+class ObjectRefImpl<T extends object, K extends keyof T> {
+  public readonly __v_isRef = true
+
+  constructor(
+    private readonly _object: T,
+    private readonly _key: K,
+    private readonly _defaultValue?: T[K]
+  ) {}
+
+  get value() {
+    const val = this._object[this._key]
+    return val === undefined ? (this._defaultValue as T[K]) : val
+  }
+
+  set value(newVal) {
+    this._object[this._key] = newVal
+  }
+}
+```
+
+​	在`ObjectRefImpl`中只对值做了处理，没有收集依赖和触发依赖的过程，这与`RefImpl`类做一个对比。在`get value()`中`RefImpl`多了一个`trackRefValue(this)`来进行收集依赖。在`get value()`中进行了`triggerRefValue(this, newVal)`触发依赖的操作。这在`ObjectRefImpl`中是没有的。所以对于非响应式的对象是不会去更新视图的，而响应式对象是使用的`reactive`，在`reactive`中会调用`proxy`，在那里做了收集依赖和触发依赖的操作，所以在`ObjectRefImpl`中不需要再去实现这两个操作，否则会触发两次。因为是在`reactive`中会调用，所以原始数据对象就不会更新视图，也就是为什么`toRef`需要传入一个对象。
+
+```typescript
+class RefImpl<T> {
+  private _value: T
+  private _rawValue: T
+
+  public dep?: Dep = undefined
+  public readonly __v_isRef = true
+
+  constructor(value: T, public readonly __v_isShallow: boolean) {
+    this._rawValue = __v_isShallow ? value : toRaw(value)
+    this._value = __v_isShallow ? value : toReactive(value)
+  }
+
+  get value() {
+    trackRefValue(this)	// <-----------------------------this
+    return this._value	
+  }
+
+  set value(newVal) {
+    const useDirectValue =
+      this.__v_isShallow || isShallow(newVal) || isReadonly(newVal)
+    newVal = useDirectValue ? newVal : toRaw(newVal)
+    if (hasChanged(newVal, this._rawValue)) {
+      this._rawValue = newVal
+      this._value = useDirectValue ? newVal : toReactive(newVal)
+      triggerRefValue(this, newVal)	// <-----------------------------this
+    }
+  }
+}
+```
+
+
+
+**toRefs源码解析**
+
+简而言之就是把`reactive` 对象的每一个属性都变成了`ref` 对象循环调用了`toRef`
+
+```typescript
+export type ToRefs<T = any> = {
+  [K in keyof T]: ToRef<T[K]>
+}
+export function toRefs<T extends object>(object: T): ToRefs<T> {
+  if (__DEV__ && !isProxy(object)) {
+    console.warn(`toRefs() expects a reactive object but received a plain one.`)
+  }
+  const ret: any = isArray(object) ? new Array(object.length) : {}
+  for (const key in object) {
+    ret[key] = toRef(object, key)
+  }
+  return ret
+}
+```
+
+先判断是不是一个数组，如果是数组的话就进行初始化，如果不是数组就定义一个对象。然后对每一个属性调用`toRef`后返回。
+
+
+
+**toRaw源码解析**
+
+在`packages\reactivity\src\reactive.ts`中
+
+```typescript
+export function toRaw<T>(observed: T): T {
+  const raw = observed && (observed as Target)[ReactiveFlags.RAW]
+  return raw ? toRaw(raw) : observed
+}
+```
+
+从`observed`这个对象中去取了一个属性`[ReactiveFlags.RAW]`，这个`ReactiveFlags`是定义的一个枚举，拿取的`.RAW`的值。
+
+```typescript
+export const enum ReactiveFlags {
+  SKIP = '__v_skip',
+  IS_REACTIVE = '__v_isReactive',
+  IS_READONLY = '__v_isReadonly',
+  IS_SHALLOW = '__v_isShallow',
+  RAW = '__v_raw'
+}
+```
+
+通过 `ReactiveFlags` 枚举值 取出 `proxy` 对象的 原始对象。
+
+### 响应式原理
+
+Vue2使用的是 `Object.defineProperty` ，Vue3 使用的是 `Proxy`
+
