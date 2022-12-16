@@ -7371,3 +7371,73 @@ promise.then(//调用then方法
 
 ```
 
+### proxy
+
+proxy可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+
+proxy实际上重载了点运算符，即用自己的定义覆盖了语言的原始定义
+
+ES6原生提供proxy构造函数，用来生成proxy实例
+
+```javascript
+//target参数表示所要拦截的目标对象，handler参数也是一个对象，用来定制拦截行为
+var proxy = new Proxy(target,handler);
+```
+
+**get方法**
+
+​	用于拦截某个属性的读取操作，可以接受三个参数，依次为，目标对象、属性名、proxy实例本身（严格来说，是操作行为所针对的对象），其中最后一个参数可选。
+
+```JavaScript
+//如果访问目标对象不存在的属性，会抛出一个错误，如果没有这个拦截函数，访问不存在的属性，会返回undefined
+
+var person ={
+    name:"张三"
+}
+var proxy = new Proxy(person,{
+    get(target,propKey){
+        if(propKey in target){
+            return target[propKey];
+        }else{
+            throw new ReferenceError("Prop name \"" + propKey +"\"does not exist. ")
+        }
+    }
+});
+
+proxy.name // "张三"
+proxy.age //抛出一个错误
+```
+
+**set方法**
+
+​	用来拦截某个属性的赋值操作，可以接受四个参数，依次为，目标对象、属性名、属性值、Proxy实例本身，其中最后一个参数可选。
+
+```JavaScript
+//假定Person对象有一个age属性，改属性应该是一个不大于200的整数，那么可以使用Proxy保证age的属性值符合要求。
+let validator = {
+	set(obj,prop,value){
+        if(prop === "age"){
+            if(!Number.isInteger(value)){
+                throw new TypeError("The age is not an integer");
+            }
+            if(value >200){
+                throw new TypeError("The age seems invalid");
+            }
+        }
+        //对于满足条件的age属性以及其他属性，直接保存
+        obj[prop] = value;
+        return true;   
+    }
+};
+
+let person = new Proxy({},validator);
+person.age = 100;
+person.age;	//100
+
+person.age = "young";	//报错
+person.age = 300;	//报错
+```
+
+**has方法**
+
+用来拦截`HasProperty`操作，即判断对象是否具有某个属性时，这个方法会生效。
