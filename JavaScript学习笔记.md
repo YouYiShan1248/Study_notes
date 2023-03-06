@@ -6880,6 +6880,28 @@ console.log(ary);	// error
 
 
 
+### 模板字符串
+
+使用模板字符串来拼接实现数据描述
+
+```javascript
+//原先的方式拼接字符串
+let name ="xiaoming"
+let age = 20
+{
+    let info = name + " is " + age + "years old"
+    console.log(info)
+}
+
+//使用模板字符串
+{
+    let info = `${name} is ${age} years old`;//插值运算符
+    console.log(info)
+}
+```
+
+
+
 ### 解构
 
 #### 数组解构
@@ -6966,6 +6988,45 @@ var obj = {
 }
 obj.say();
 ```
+
+
+
+### class类
+
+```JavaScript
+//class 类
+class Student {
+// 构造函数
+	constructor(name, age) {
+        this.age = age;
+        this.name = name;
+      }
+      show() {
+        console.log(`${this.name} is ${this.age} years old`);
+      }
+}
+    let s1 = new Student("小明", 20);
+    s1.show();
+```
+
+
+
+### 对象字面量简写
+
+```JavaScript
+//原始方法
+let x = 20;
+let y = 40;
+// 简写法
+let [a, b] = [20, 40];
+
+// 原始方法
+let point = { x: x, y: y };
+// 简写法
+let spoint = { x, y };
+```
+
+
 
 ### 剩余参数
 
