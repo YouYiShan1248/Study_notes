@@ -7386,7 +7386,7 @@ promise.then(//调用then方法
 #### Promise.then（）
 
 ```JavaScript
-<script>
+
     const p =new Promise((resolve, reject) =>{
         setTimeout(()=>{
             resolve('用户数据');
@@ -7410,7 +7410,7 @@ promise.then(//调用then方法
         console.log(reason)
     })
     console.log(result);
-</script>
+
 
 ```
 
